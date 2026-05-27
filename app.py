@@ -56,6 +56,30 @@ SEARCH_TERMS = {
     "carbeto_silicio": "silicon carbide SiC",
 }
 
+SEARCH_TERMS.update(
+    {
+        "oxido_escandio": "scandium oxide Sc2O3 rare earth oxide",
+        "oxido_itrio": "yttrium oxide Y2O3 rare earth oxide",
+        "oxido_lantanio": "lanthanum oxide La2O3 rare earth oxide",
+        "oxido_cerio": "cerium oxide ceria CeO2 rare earth oxide",
+        "oxido_praseodimio": "praseodymium oxide Pr6O11 rare earth oxide",
+        "oxido_neodimio": "neodymium oxide Nd2O3 rare earth oxide",
+        "oxido_promecio": "promethium oxide Pm2O3 rare earth oxide",
+        "oxido_samario": "samarium oxide Sm2O3 rare earth oxide",
+        "oxido_europio": "europium oxide Eu2O3 rare earth phosphor",
+        "oxido_gadolinio": "gadolinium oxide Gd2O3 rare earth oxide",
+        "oxido_terbio": "terbium oxide Tb4O7 rare earth phosphor",
+        "oxido_disprosio": "dysprosium oxide Dy2O3 rare earth oxide",
+        "oxido_holmio": "holmium oxide Ho2O3 rare earth oxide",
+        "oxido_erbio": "erbium oxide Er2O3 rare earth optical",
+        "oxido_tulio": "thulium oxide Tm2O3 rare earth oxide",
+        "oxido_iterbio": "ytterbium oxide Yb2O3 rare earth oxide",
+        "oxido_lutecio": "lutetium oxide Lu2O3 rare earth oxide",
+        "iman_ndfeb": "neodymium iron boron NdFeB permanent magnet",
+        "iman_smco": "samarium cobalt SmCo permanent magnet",
+    }
+)
+
 
 def json_response(handler: BaseHTTPRequestHandler, data: Any, status: int = 200) -> None:
     payload = json.dumps(data, ensure_ascii=False).encode("utf-8")

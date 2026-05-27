@@ -152,6 +152,333 @@ LOCAL_MATERIALS: Dict[str, Material] = {
 }
 
 
+def estimate_element_properties(
+    category: str,
+    density_g_cm3: float,
+    melting_point_c: float,
+) -> dict[str, float | str]:
+    category = category.lower()
+
+    if "gas nobre" in category:
+        return {
+            "elastic_modulus_gpa": 0.0,
+            "thermal_conductivity_w_mk": 0.02,
+            "electrical_conductivity_s_m": 0.0,
+            "band_gap_ev": 10.0,
+            "crystal_structure": "gas monoatomico",
+            "color": "#7aa7ff",
+        }
+    if "halogenio" in category:
+        return {
+            "elastic_modulus_gpa": 1.0,
+            "thermal_conductivity_w_mk": 0.05,
+            "electrical_conductivity_s_m": 1.0e-12,
+            "band_gap_ev": 4.0,
+            "crystal_structure": "molecular",
+            "color": "#87b66b",
+        }
+    if "nao metal" in category:
+        return {
+            "elastic_modulus_gpa": 8.0,
+            "thermal_conductivity_w_mk": 0.3,
+            "electrical_conductivity_s_m": 1.0e-8,
+            "band_gap_ev": 4.0,
+            "crystal_structure": "molecular/covalente",
+            "color": "#7aa7ff",
+        }
+    if "metaloide" in category:
+        return {
+            "elastic_modulus_gpa": 70.0,
+            "thermal_conductivity_w_mk": 35.0,
+            "electrical_conductivity_s_m": 1.0,
+            "band_gap_ev": 1.2,
+            "crystal_structure": "covalente",
+            "color": "#6f7f86",
+        }
+    if "alcalino-terroso" in category:
+        return {
+            "elastic_modulus_gpa": 35.0,
+            "thermal_conductivity_w_mk": 90.0,
+            "electrical_conductivity_s_m": 1.0e7,
+            "band_gap_ev": 0.0,
+            "crystal_structure": "hcp/fcc",
+            "color": "#aeb9bd",
+        }
+    if "alcalino" in category:
+        return {
+            "elastic_modulus_gpa": 8.0,
+            "thermal_conductivity_w_mk": 60.0,
+            "electrical_conductivity_s_m": 8.0e6,
+            "band_gap_ev": 0.0,
+            "crystal_structure": "bcc",
+            "color": "#b8b4a6",
+        }
+    if "lantanideo" in category:
+        return {
+            "elastic_modulus_gpa": 45.0,
+            "thermal_conductivity_w_mk": 12.0,
+            "electrical_conductivity_s_m": 1.5e6,
+            "band_gap_ev": 0.0,
+            "crystal_structure": "hcp/fcc",
+            "color": "#9fb2b5",
+        }
+    if "actinideo" in category:
+        return {
+            "elastic_modulus_gpa": 70.0,
+            "thermal_conductivity_w_mk": 18.0,
+            "electrical_conductivity_s_m": 1.0e6,
+            "band_gap_ev": 0.0,
+            "crystal_structure": "complexa",
+            "color": "#8c9a8f",
+        }
+    if "pos-transicao" in category:
+        return {
+            "elastic_modulus_gpa": 35.0,
+            "thermal_conductivity_w_mk": 30.0,
+            "electrical_conductivity_s_m": 4.0e6,
+            "band_gap_ev": 0.0,
+            "crystal_structure": "metalica",
+            "color": "#aeb9bd",
+        }
+
+    return {
+        "elastic_modulus_gpa": 120.0 if density_g_cm3 > 0 else 0.0,
+        "thermal_conductivity_w_mk": 45.0 if density_g_cm3 > 0 else 0.0,
+        "electrical_conductivity_s_m": 7.0e6 if density_g_cm3 > 0 else 0.0,
+        "band_gap_ev": 0.0,
+        "crystal_structure": "metalica",
+        "color": "#8fa3ad",
+    }
+
+
+PERIODIC_TABLE_BASE = [
+    ("hidrogenio", "Hidrogenio", "H", 1, 1.008, "nao metal", 0.00009, -259.1, 53, 2.20),
+    ("helio", "Helio", "He", 2, 4.0026, "gas nobre", 0.00018, -272.2, 31, 0.0),
+    ("litio", "Litio", "Li", 3, 6.94, "metal alcalino", 0.534, 180.5, 167, 0.98),
+    ("berilio", "Berilio", "Be", 4, 9.0122, "metal alcalino-terroso", 1.85, 1287, 112, 1.57),
+    ("boro", "Boro", "B", 5, 10.81, "metaloide", 2.34, 2076, 87, 2.04),
+    ("carbono", "Carbono", "C", 6, 12.011, "nao metal", 2.26, 3650, 70, 2.55),
+    ("nitrogenio", "Nitrogenio", "N", 7, 14.007, "nao metal", 0.00125, -210.0, 56, 3.04),
+    ("oxigenio", "Oxigenio", "O", 8, 15.999, "nao metal", 0.00143, -218.8, 48, 3.44),
+    ("fluor", "Fluor", "F", 9, 18.998, "halogenio", 0.00170, -219.7, 42, 3.98),
+    ("neon", "Neon", "Ne", 10, 20.180, "gas nobre", 0.00090, -248.6, 38, 0.0),
+    ("sodio", "Sodio", "Na", 11, 22.990, "metal alcalino", 0.97, 97.8, 190, 0.93),
+    ("magnesio", "Magnesio", "Mg", 12, 24.305, "metal alcalino-terroso", 1.74, 650, 145, 1.31),
+    ("aluminio", "Aluminio", "Al", 13, 26.982, "metal pos-transicao", 2.70, 660.3, 118, 1.61),
+    ("silicio", "Silicio", "Si", 14, 28.085, "metaloide", 2.33, 1414, 111, 1.90),
+    ("fosforo", "Fosforo", "P", 15, 30.974, "nao metal", 1.82, 44.1, 98, 2.19),
+    ("enxofre", "Enxofre", "S", 16, 32.06, "nao metal", 2.07, 115.2, 88, 2.58),
+    ("cloro", "Cloro", "Cl", 17, 35.45, "halogenio", 0.0032, -101.5, 79, 3.16),
+    ("argon", "Argon", "Ar", 18, 39.948, "gas nobre", 0.00178, -189.3, 71, 0.0),
+    ("potassio", "Potassio", "K", 19, 39.098, "metal alcalino", 0.86, 63.4, 243, 0.82),
+    ("calcio", "Calcio", "Ca", 20, 40.078, "metal alcalino-terroso", 1.54, 842, 194, 1.00),
+    ("escandio", "Escandio", "Sc", 21, 44.956, "metal de transicao", 2.99, 1541, 184, 1.36),
+    ("titanio", "Titanio", "Ti", 22, 47.867, "metal de transicao", 4.51, 1668, 147, 1.54),
+    ("vanadio", "Vanadio", "V", 23, 50.942, "metal de transicao", 6.11, 1910, 134, 1.63),
+    ("cromo", "Cromo", "Cr", 24, 51.996, "metal de transicao", 7.19, 1907, 128, 1.66),
+    ("manganes", "Manganes", "Mn", 25, 54.938, "metal de transicao", 7.30, 1246, 127, 1.55),
+    ("ferro", "Ferro", "Fe", 26, 55.845, "metal de transicao", 7.87, 1538, 126, 1.83),
+    ("cobalto", "Cobalto", "Co", 27, 58.933, "metal de transicao", 8.90, 1495, 125, 1.88),
+    ("niquel", "Niquel", "Ni", 28, 58.693, "metal de transicao", 8.91, 1455, 124, 1.91),
+    ("cobre", "Cobre", "Cu", 29, 63.546, "metal de transicao", 8.96, 1084.6, 128, 1.90),
+    ("zinco", "Zinco", "Zn", 30, 65.38, "metal de transicao", 7.14, 419.5, 134, 1.65),
+    ("galio", "Galio", "Ga", 31, 69.723, "metal pos-transicao", 5.91, 29.8, 136, 1.81),
+    ("germanio", "Germanio", "Ge", 32, 72.630, "metaloide", 5.32, 938.3, 122, 2.01),
+    ("arsenio", "Arsenio", "As", 33, 74.922, "metaloide", 5.73, 816.8, 119, 2.18),
+    ("selenio", "Selenio", "Se", 34, 78.971, "nao metal", 4.81, 221, 120, 2.55),
+    ("bromo", "Bromo", "Br", 35, 79.904, "halogenio", 3.11, -7.2, 120, 2.96),
+    ("cripton", "Cripton", "Kr", 36, 83.798, "gas nobre", 0.0037, -157.4, 88, 3.00),
+    ("rubidio", "Rubidio", "Rb", 37, 85.468, "metal alcalino", 1.53, 39.3, 265, 0.82),
+    ("estroncio", "Estroncio", "Sr", 38, 87.62, "metal alcalino-terroso", 2.64, 777, 219, 0.95),
+    ("itrio", "Itrio", "Y", 39, 88.906, "metal de transicao", 4.47, 1526, 212, 1.22),
+    ("zirconio", "Zirconio", "Zr", 40, 91.224, "metal de transicao", 6.52, 1855, 206, 1.33),
+    ("niobio", "Niobio", "Nb", 41, 92.906, "metal de transicao", 8.57, 2477, 198, 1.60),
+    ("molibdenio", "Molibdenio", "Mo", 42, 95.95, "metal de transicao", 10.28, 2623, 190, 2.16),
+    ("tecnecio", "Tecnecio", "Tc", 43, 98.0, "metal de transicao", 11.50, 2157, 136, 1.90),
+    ("rutenio", "Rutenio", "Ru", 44, 101.07, "metal de transicao", 12.37, 2334, 178, 2.20),
+    ("rodio", "Rodio", "Rh", 45, 102.91, "metal de transicao", 12.41, 1964, 173, 2.28),
+    ("paladio", "Paladio", "Pd", 46, 106.42, "metal de transicao", 12.02, 1554.9, 169, 2.20),
+    ("prata", "Prata", "Ag", 47, 107.868, "metal de transicao", 10.49, 961.8, 144, 1.93),
+    ("cadmio", "Cadmio", "Cd", 48, 112.414, "metal de transicao", 8.65, 321.1, 151, 1.69),
+    ("indio", "Indio", "In", 49, 114.818, "metal pos-transicao", 7.31, 156.6, 167, 1.78),
+    ("estanho", "Estanho", "Sn", 50, 118.710, "metal pos-transicao", 7.31, 231.9, 140, 1.96),
+    ("antimonio", "Antimonio", "Sb", 51, 121.760, "metaloide", 6.69, 630.6, 139, 2.05),
+    ("telurio", "Telurio", "Te", 52, 127.60, "metaloide", 6.24, 449.5, 138, 2.10),
+    ("iodo", "Iodo", "I", 53, 126.904, "halogenio", 4.93, 113.7, 139, 2.66),
+    ("xenon", "Xenon", "Xe", 54, 131.293, "gas nobre", 0.0059, -111.8, 108, 2.60),
+    ("cesio", "Cesio", "Cs", 55, 132.905, "metal alcalino", 1.93, 28.5, 298, 0.79),
+    ("bario", "Bario", "Ba", 56, 137.327, "metal alcalino-terroso", 3.62, 727, 253, 0.89),
+    ("lantanio", "Lantanio", "La", 57, 138.905, "lantanideo", 6.15, 920, 195, 1.10),
+    ("cerio", "Cerio", "Ce", 58, 140.116, "lantanideo", 6.77, 798, 185, 1.12),
+    ("praseodimio", "Praseodimio", "Pr", 59, 140.908, "lantanideo", 6.77, 931, 185, 1.13),
+    ("neodimio", "Neodimio", "Nd", 60, 144.242, "lantanideo", 7.01, 1021, 185, 1.14),
+    ("promecio", "Promecio", "Pm", 61, 145.0, "lantanideo", 7.26, 1042, 185, 1.13),
+    ("samario", "Samario", "Sm", 62, 150.36, "lantanideo", 7.52, 1072, 185, 1.17),
+    ("europio", "Europio", "Eu", 63, 151.964, "lantanideo", 5.24, 826, 185, 1.20),
+    ("gadolinio", "Gadolinio", "Gd", 64, 157.25, "lantanideo", 7.90, 1313, 180, 1.20),
+    ("terbio", "Terbio", "Tb", 65, 158.925, "lantanideo", 8.23, 1356, 175, 1.10),
+    ("disprosio", "Disprosio", "Dy", 66, 162.500, "lantanideo", 8.55, 1412, 175, 1.22),
+    ("holmio", "Holmio", "Ho", 67, 164.930, "lantanideo", 8.80, 1474, 175, 1.23),
+    ("erbio", "Erbio", "Er", 68, 167.259, "lantanideo", 9.07, 1529, 175, 1.24),
+    ("tulio", "Tulio", "Tm", 69, 168.934, "lantanideo", 9.32, 1545, 175, 1.25),
+    ("iterbio", "Iterbio", "Yb", 70, 173.045, "lantanideo", 6.90, 824, 175, 1.10),
+    ("lutecio", "Lutecio", "Lu", 71, 174.967, "lantanideo", 9.84, 1663, 175, 1.27),
+    ("hafnio", "Hafnio", "Hf", 72, 178.49, "metal de transicao", 13.31, 2233, 208, 1.30),
+    ("tantalo", "Tantalo", "Ta", 73, 180.948, "metal de transicao", 16.69, 3017, 200, 1.50),
+    ("tungstenio", "Tungstenio", "W", 74, 183.84, "metal de transicao", 19.25, 3422, 139, 2.36),
+    ("renio", "Renio", "Re", 75, 186.207, "metal de transicao", 21.02, 3186, 188, 1.90),
+    ("osmio", "Osmio", "Os", 76, 190.23, "metal de transicao", 22.59, 3033, 185, 2.20),
+    ("iridio", "Iridio", "Ir", 77, 192.217, "metal de transicao", 22.56, 2446, 180, 2.20),
+    ("platina", "Platina", "Pt", 78, 195.084, "metal de transicao", 21.45, 1768.3, 177, 2.28),
+    ("ouro", "Ouro", "Au", 79, 196.967, "metal de transicao", 19.32, 1064.2, 144, 2.54),
+    ("mercurio", "Mercurio", "Hg", 80, 200.592, "metal de transicao", 13.53, -38.8, 151, 2.00),
+    ("talio", "Talio", "Tl", 81, 204.38, "metal pos-transicao", 11.85, 304, 170, 1.62),
+    ("chumbo", "Chumbo", "Pb", 82, 207.2, "metal pos-transicao", 11.34, 327.5, 175, 2.33),
+    ("bismuto", "Bismuto", "Bi", 83, 208.980, "metal pos-transicao", 9.78, 271.4, 156, 2.02),
+    ("polonio", "Polonio", "Po", 84, 209.0, "metaloide", 9.20, 254, 168, 2.00),
+    ("astato", "Astato", "At", 85, 210.0, "halogenio", 7.00, 302, 150, 2.20),
+    ("radonio", "Radonio", "Rn", 86, 222.0, "gas nobre", 0.0097, -71, 120, 0.0),
+    ("francio", "Francio", "Fr", 87, 223.0, "metal alcalino", 1.87, 27, 348, 0.70),
+    ("radio", "Radio", "Ra", 88, 226.0, "metal alcalino-terroso", 5.50, 700, 283, 0.90),
+    ("actinio", "Actinio", "Ac", 89, 227.0, "actinideo", 10.07, 1050, 195, 1.10),
+    ("torio", "Torio", "Th", 90, 232.038, "actinideo", 11.72, 1750, 180, 1.30),
+    ("protactinio", "Protactinio", "Pa", 91, 231.036, "actinideo", 15.37, 1572, 180, 1.50),
+    ("uranio", "Uranio", "U", 92, 238.029, "actinideo", 19.05, 1132, 175, 1.38),
+    ("netunio", "Netunio", "Np", 93, 237.0, "actinideo", 20.45, 644, 175, 1.36),
+    ("plutonio", "Plutonio", "Pu", 94, 244.0, "actinideo", 19.84, 640, 175, 1.28),
+    ("americio", "Americio", "Am", 95, 243.0, "actinideo", 13.67, 1176, 175, 1.30),
+    ("curio", "Curio", "Cm", 96, 247.0, "actinideo", 13.51, 1345, 175, 1.30),
+    ("berquelio", "Berquelio", "Bk", 97, 247.0, "actinideo", 14.78, 986, 170, 1.30),
+    ("californio", "Californio", "Cf", 98, 251.0, "actinideo", 15.10, 900, 170, 1.30),
+    ("einstenio", "Einstenio", "Es", 99, 252.0, "actinideo", 8.84, 860, 170, 1.30),
+    ("fermio", "Fermio", "Fm", 100, 257.0, "actinideo", 9.70, 1527, 170, 1.30),
+    ("mendelevio", "Mendelevio", "Md", 101, 258.0, "actinideo", 10.30, 827, 170, 1.30),
+    ("nobelio", "Nobelio", "No", 102, 259.0, "actinideo", 9.90, 827, 170, 1.30),
+    ("lawrencio", "Lawrencio", "Lr", 103, 266.0, "actinideo", 15.60, 1627, 170, 1.30),
+    ("rutherfordio", "Rutherfordio", "Rf", 104, 267.0, "metal de transicao sintetico", 17.0, 2100, 170, 0.0),
+    ("dubnio", "Dubnio", "Db", 105, 268.0, "metal de transicao sintetico", 21.6, 0, 170, 0.0),
+    ("seaborgio", "Seaborgio", "Sg", 106, 269.0, "metal de transicao sintetico", 23.0, 0, 170, 0.0),
+    ("bohrio", "Bohrio", "Bh", 107, 270.0, "metal de transicao sintetico", 26.0, 0, 170, 0.0),
+    ("hassio", "Hassio", "Hs", 108, 277.0, "metal de transicao sintetico", 27.0, 0, 170, 0.0),
+    ("meitnerio", "Meitnerio", "Mt", 109, 278.0, "metal de transicao sintetico", 28.0, 0, 170, 0.0),
+    ("darmstadtio", "Darmstadtio", "Ds", 110, 281.0, "metal de transicao sintetico", 29.0, 0, 170, 0.0),
+    ("roentgenio", "Roentgenio", "Rg", 111, 282.0, "metal de transicao sintetico", 28.7, 0, 170, 0.0),
+    ("copernicio", "Copernicio", "Cn", 112, 285.0, "metal de transicao sintetico", 14.0, 0, 170, 0.0),
+    ("nihonio", "Nihonio", "Nh", 113, 286.0, "metal pos-transicao sintetico", 16.0, 0, 170, 0.0),
+    ("flerovio", "Flerovio", "Fl", 114, 289.0, "metal pos-transicao sintetico", 14.0, 0, 170, 0.0),
+    ("moscovio", "Moscovio", "Mc", 115, 290.0, "metal pos-transicao sintetico", 13.5, 0, 170, 0.0),
+    ("livermorio", "Livermorio", "Lv", 116, 293.0, "metal pos-transicao sintetico", 12.9, 0, 170, 0.0),
+    ("tenesso", "Tenesso", "Ts", 117, 294.0, "halogenio sintetico", 7.2, 0, 170, 0.0),
+    ("oganessonio", "Oganessonio", "Og", 118, 294.0, "gas nobre sintetico", 7.0, 0, 170, 0.0),
+]
+
+
+def add_periodic_table_elements() -> None:
+    for (
+        key,
+        name,
+        symbol,
+        atomic_number,
+        atomic_mass_u,
+        category,
+        density_g_cm3,
+        melting_point_c,
+        atomic_radius_pm,
+        electronegativity,
+    ) in PERIODIC_TABLE_BASE:
+        if key in LOCAL_MATERIALS:
+            continue
+
+        props = estimate_element_properties(category, density_g_cm3, melting_point_c)
+        LOCAL_MATERIALS[key] = m(
+            name=name,
+            formula=symbol,
+            symbol=symbol,
+            category=category,
+            atomic_number=atomic_number,
+            atomic_mass_u=atomic_mass_u,
+            density_g_cm3=density_g_cm3,
+            elastic_modulus_gpa=float(props["elastic_modulus_gpa"]),
+            thermal_conductivity_w_mk=float(props["thermal_conductivity_w_mk"]),
+            electrical_conductivity_s_m=float(props["electrical_conductivity_s_m"]),
+            band_gap_ev=float(props["band_gap_ev"]),
+            melting_point_c=melting_point_c,
+            atomic_radius_pm=atomic_radius_pm,
+            electronegativity=electronegativity,
+            crystal_structure=str(props["crystal_structure"]),
+            color=str(props["color"]),
+        )
+
+
+add_periodic_table_elements()
+
+
+RARE_EARTH_COMPOUNDS = [
+    ("oxido_escandio", "Oxido de escandio", "Sc2O3", "Sc2O3", 137.91, 3.86, 200, 12, 1.0e-12, 5.7, 2485, 184, 1.36, "bixbyita cubica", "#d8e0df"),
+    ("oxido_itrio", "Oxido de itrio", "Y2O3", "Y2O3", 225.81, 5.01, 180, 13, 1.0e-12, 5.5, 2430, 212, 1.22, "bixbyita cubica", "#dce5e0"),
+    ("oxido_lantanio", "Oxido de lantanio", "La2O3", "La2O3", 325.81, 6.51, 150, 10, 1.0e-12, 4.3, 2315, 195, 1.10, "hexagonal/cubica", "#d6ded8"),
+    ("oxido_cerio", "Oxido de cerio", "CeO2", "CeO2", 172.11, 7.22, 230, 12, 1.0e-8, 3.2, 2400, 185, 1.12, "fluorita cubica", "#e2d48b"),
+    ("oxido_praseodimio", "Oxido de praseodimio", "Pr6O11", "Pr6O11", 1021.44, 6.88, 160, 7, 1.0e-8, 2.1, 2183, 185, 1.13, "cubica complexa", "#6f7d4f"),
+    ("oxido_neodimio", "Oxido de neodimio", "Nd2O3", "Nd2O3", 336.48, 7.24, 155, 10, 1.0e-11, 4.7, 2233, 185, 1.14, "hexagonal/cubica", "#a893c8"),
+    ("oxido_promecio", "Oxido de promecio", "Pm2O3", "Pm2O3", 338.0, 6.60, 145, 8, 1.0e-11, 4.0, 2130, 185, 1.13, "cubica estimada", "#9aa4b5"),
+    ("oxido_samario", "Oxido de samario", "Sm2O3", "Sm2O3", 348.72, 8.35, 150, 11, 1.0e-11, 4.3, 2335, 185, 1.17, "monoclinica/cubica", "#d4c0aa"),
+    ("oxido_europio", "Oxido de europio", "Eu2O3", "Eu2O3", 351.93, 7.42, 145, 8, 1.0e-11, 4.4, 2350, 185, 1.20, "bixbyita cubica", "#d28fa1"),
+    ("oxido_gadolinio", "Oxido de gadolinio", "Gd2O3", "Gd2O3", 362.50, 7.41, 160, 11, 1.0e-11, 5.3, 2420, 180, 1.20, "bixbyita cubica", "#bfc9b4"),
+    ("oxido_terbio", "Oxido de terbio", "Tb4O7", "Tb4O7", 747.70, 7.30, 155, 9, 1.0e-9, 2.8, 2340, 175, 1.10, "fluorita/defeitos", "#6f7f5f"),
+    ("oxido_disprosio", "Oxido de disprosio", "Dy2O3", "Dy2O3", 373.00, 7.81, 150, 10, 1.0e-11, 4.9, 2340, 175, 1.22, "bixbyita cubica", "#c9d5c7"),
+    ("oxido_holmio", "Oxido de holmio", "Ho2O3", "Ho2O3", 377.86, 8.41, 150, 9, 1.0e-11, 5.3, 2415, 175, 1.23, "bixbyita cubica", "#e0c8b0"),
+    ("oxido_erbio", "Oxido de erbio", "Er2O3", "Er2O3", 382.52, 8.64, 155, 12, 1.0e-11, 5.2, 2400, 175, 1.24, "bixbyita cubica", "#f0a2bf"),
+    ("oxido_tulio", "Oxido de tulio", "Tm2O3", "Tm2O3", 385.87, 8.60, 150, 10, 1.0e-11, 5.0, 2425, 175, 1.25, "bixbyita cubica", "#b7c2d1"),
+    ("oxido_iterbio", "Oxido de iterbio", "Yb2O3", "Yb2O3", 394.08, 9.17, 145, 9, 1.0e-11, 4.9, 2355, 175, 1.10, "bixbyita cubica", "#c6b6d2"),
+    ("oxido_lutecio", "Oxido de lutecio", "Lu2O3", "Lu2O3", 397.93, 9.42, 170, 12, 1.0e-11, 5.5, 2490, 175, 1.27, "bixbyita cubica", "#cbd2ce"),
+    ("iman_ndfeb", "Ima de neodimio ferro boro", "Nd2Fe14B", "NdFeB", 1081.1, 7.50, 160, 8, 6.0e5, 0.0, 1180, 160, 1.45, "tetragonal", "#7b6fa6"),
+    ("iman_smco", "Ima de samario cobalto", "SmCo5", "SmCo", 445.0, 8.30, 150, 12, 1.0e6, 0.0, 1320, 160, 1.55, "hexagonal", "#8d7780"),
+]
+
+
+def add_rare_earth_compounds() -> None:
+    for (
+        key,
+        name,
+        formula,
+        symbol,
+        atomic_mass_u,
+        density_g_cm3,
+        elastic_modulus_gpa,
+        thermal_conductivity_w_mk,
+        electrical_conductivity_s_m,
+        band_gap_ev,
+        melting_point_c,
+        atomic_radius_pm,
+        electronegativity,
+        crystal_structure,
+        color,
+    ) in RARE_EARTH_COMPOUNDS:
+        if key in LOCAL_MATERIALS:
+            continue
+        LOCAL_MATERIALS[key] = m(
+            name=name,
+            formula=formula,
+            symbol=symbol,
+            category="composto de terra rara",
+            atomic_number=0,
+            atomic_mass_u=atomic_mass_u,
+            density_g_cm3=density_g_cm3,
+            elastic_modulus_gpa=elastic_modulus_gpa,
+            thermal_conductivity_w_mk=thermal_conductivity_w_mk,
+            electrical_conductivity_s_m=electrical_conductivity_s_m,
+            band_gap_ev=band_gap_ev,
+            melting_point_c=melting_point_c,
+            atomic_radius_pm=atomic_radius_pm,
+            electronegativity=electronegativity,
+            crystal_structure=crystal_structure,
+            color=color,
+        )
+
+
+add_rare_earth_compounds()
+
+
 class MaterialsProjectClient:
     BASE_URL = "https://api.materialsproject.org/materials/summary"
 

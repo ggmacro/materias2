@@ -13,6 +13,8 @@ from typing import Any
 
 from material_simulator import (
     LOCAL_MATERIALS,
+    MATERIAL_DISPLAY_ORDER,
+    MATERIAL_SEARCH_TERMS,
     MaterialsProjectClient,
     canonicalize_composition,
     local_material_key,
@@ -137,6 +139,7 @@ SEARCH_TERMS.update(
         "iman_smco": "samarium cobalt SmCo permanent magnet",
     }
 )
+SEARCH_TERMS.update(MATERIAL_SEARCH_TERMS)
 
 
 def json_response(handler: BaseHTTPRequestHandler, data: Any, status: int = 200) -> None:
@@ -185,9 +188,16 @@ def fetch_xml(url: str, timeout: int = 12) -> ET.Element:
 
 
 def material_catalog() -> list[dict[str, Any]]:
+    ordered_keys = [key for key in MATERIAL_DISPLAY_ORDER if key in LOCAL_MATERIALS]
+    ordered_lookup = set(ordered_keys)
+    remaining_keys = sorted(key for key in LOCAL_MATERIALS if key not in ordered_lookup)
     return [
-        {"id": key, **material.to_dict()}
-        for key, material in sorted(LOCAL_MATERIALS.items())
+        {
+            "id": key,
+            "search_terms": SEARCH_TERMS.get(key, ""),
+            **LOCAL_MATERIALS[key].to_dict(),
+        }
+        for key in [*ordered_keys, *remaining_keys]
     ]
 
 

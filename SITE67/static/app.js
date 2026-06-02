@@ -91,6 +91,7 @@ function materialText(material) {
     material.formula,
     material.symbol,
     material.category,
+    material.search_terms,
   ]
     .filter(Boolean)
     .join(" ")

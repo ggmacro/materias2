@@ -26,14 +26,16 @@ essa porta.
 
 ## Variaveis opcionais
 
-Para ativar consultas na Materials Project API:
+Para ativar consultas reais na Materials Project API, incluindo propriedades,
+estabilidade, estrutura cristalina, grupo espacial, parametros de rede e IDs ICSD
+quando existirem:
 
 ```text
 MP_API_KEY=sua_chave
 ```
 
-Sem essa chave, o app continua funcionando com a base local e com buscas de
-artigos via OpenAlex/Crossref.
+Sem essa chave, o app continua funcionando com a base local, mostra links diretos
+para o Materials Project e mantem as buscas de artigos via OpenAlex/Crossref.
 
 ## Teste local antes de publicar
 

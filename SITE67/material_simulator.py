@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import math
 import os
+import re
 from dataclasses import asdict, dataclass
 from typing import Any, Dict, Iterable, Optional
 
@@ -1228,28 +1229,77 @@ def canonicalize_composition(
 
 class MaterialsProjectClient:
     BASE_URL = "https://api.materialsproject.org/materials/summary"
+    WEB_MATERIALS_URL = "https://next-gen.materialsproject.org/materials"
+    WEB_MOLECULES_URL = "https://next-gen.materialsproject.org/molecules"
+    SUMMARY_FIELDS = ",".join(
+        [
+            "material_id",
+            "formula_pretty",
+            "elements",
+            "nelements",
+            "nsites",
+            "density",
+            "band_gap",
+            "is_gap_direct",
+            "is_metal",
+            "efermi",
+            "energy_above_hull",
+            "formation_energy_per_atom",
+            "is_stable",
+            "crystal_system",
+            "symmetry",
+            "structure",
+            "volume",
+            "database_IDs",
+            "theoretical",
+            "deprecated",
+        ]
+    )
 
     def __init__(self, api_key: Optional[str] = None) -> None:
         self.api_key = api_key or os.getenv("MP_API_KEY")
+
+    @staticmethod
+    def web_links_for_query(query: str) -> dict[str, str]:
+        encoded = requests.utils.quote(query) if requests is not None else query.replace(" ", "%20")
+        return {
+            "materials": f"{MaterialsProjectClient.WEB_MATERIALS_URL}?formula={encoded}",
+            "molecules": f"{MaterialsProjectClient.WEB_MOLECULES_URL}?formula={encoded}",
+        }
+
+    @staticmethod
+    def material_url(material_id: str) -> str:
+        return f"{MaterialsProjectClient.WEB_MATERIALS_URL}/{material_id}"
+
+    def summary_search(self, params: dict[str, Any]) -> list[dict[str, Any]]:
+        if not self.api_key:
+            raise ValueError("Configure a variavel de ambiente MP_API_KEY para buscar dados completos do Materials Project.")
+        if requests is None:
+            raise ValueError("Instale a dependencia requests para consultar o Materials Project.")
+
+        headers = {"X-API-KEY": self.api_key}
+        response = requests.get(self.BASE_URL, headers=headers, params=params, timeout=25)
+        response.raise_for_status()
+        return response.json().get("data", [])
 
     def search_by_formula(self, formula: str) -> Optional[Material]:
         if not self.api_key or requests is None:
             return None
 
-        headers = {"X-API-KEY": self.api_key}
-        params = {
-            "formula": formula,
-            "fields": "formula_pretty,density,band_gap",
-            "_limit": 1,
-        }
-        response = requests.get(self.BASE_URL, headers=headers, params=params, timeout=20)
-        response.raise_for_status()
-        data = response.json().get("data", [])
+        data = self.summary_search(
+            {
+                "formula": formula,
+                "fields": "formula_pretty,density,band_gap,crystal_system,symmetry",
+                "_limit": 1,
+            }
+        )
         if not data:
             return None
 
         item = data[0]
         pretty_formula = item.get("formula_pretty", formula)
+        symmetry = item.get("symmetry") or {}
+        crystal_system = item.get("crystal_system") or symmetry.get("crystal_system")
         return Material(
             name=f"Materials Project: {pretty_formula}",
             formula=pretty_formula,
@@ -1265,10 +1315,147 @@ class MaterialsProjectClient:
             melting_point_c=0.0,
             atomic_radius_pm=100,
             electronegativity=0.0,
-            crystal_structure="desconhecida",
+            crystal_structure=str(crystal_system or "estrutura MP"),
             color="#7b8da6",
             source="materials_project",
         )
+
+    def search_system(self, system_query: str, limit: int = 8) -> dict[str, Any]:
+        elements = normalize_system_elements(system_query)
+        human_query = " ".join(elements) if elements else system_query.strip()
+        links = self.web_links_for_query(human_query)
+        chemsys = "-".join(elements)
+
+        if not elements:
+            return {
+                "available": False,
+                "query": system_query,
+                "chemsys": "",
+                "links": links,
+                "results": [],
+                "message": "Informe elementos ou formula para consultar o Materials Project.",
+            }
+
+        if not self.api_key or requests is None:
+            reason = (
+                "Configure MP_API_KEY no Render para puxar propriedades reais do Materials Project."
+                if not self.api_key
+                else "A dependencia requests nao esta instalada."
+            )
+            return {
+                "available": False,
+                "query": human_query,
+                "chemsys": chemsys,
+                "links": links,
+                "results": [],
+                "message": reason,
+            }
+
+        params = {
+            "chemsys": chemsys,
+            "fields": self.SUMMARY_FIELDS,
+            "_limit": max(1, min(limit, 25)),
+        }
+        try:
+            data = self.summary_search(params)
+        except Exception as exc:
+            return {
+                "available": False,
+                "query": human_query,
+                "chemsys": chemsys,
+                "links": links,
+                "results": [],
+                "message": f"Falha ao consultar Materials Project: {exc}",
+            }
+
+        return {
+            "available": True,
+            "query": human_query,
+            "chemsys": chemsys,
+            "links": links,
+            "results": [format_materials_project_doc(item) for item in data],
+            "message": (
+                f"{len(data)} resultado(s) do Materials Project para {chemsys}."
+                if data
+                else f"Nenhum resultado encontrado no Materials Project para {chemsys}."
+            ),
+        }
+
+
+def normalize_system_elements(system_query: str) -> list[str]:
+    tokens = re.findall(r"[A-Z][a-z]?", system_query.replace("-", " "))
+    seen: list[str] = []
+    valid_symbols = {material.symbol for material in LOCAL_MATERIALS.values() if material.atomic_number > 0}
+    for token in tokens:
+        if token in valid_symbols and token not in seen:
+            seen.append(token)
+    return sorted(seen)
+
+
+def elements_from_formula(formula: str) -> list[str]:
+    formula = re.sub(r"[^A-Za-z0-9()\[\]{}]", "", formula)
+    return normalize_system_elements(formula)
+
+
+def materials_project_query_from_composition(composition: Dict[str, float]) -> str:
+    composition, _compound_message = canonicalize_composition(composition)
+    elements: list[str] = []
+    for name in composition:
+        material = LOCAL_MATERIALS.get(local_material_key(name))
+        source = material.formula if material else name
+        for element in elements_from_formula(source):
+            if element not in elements:
+                elements.append(element)
+    return " ".join(sorted(elements))
+
+
+def lattice_summary(structure: Any) -> dict[str, Any]:
+    if not isinstance(structure, dict):
+        return {}
+    lattice = structure.get("lattice") or {}
+    return {
+        "a": lattice.get("a"),
+        "b": lattice.get("b"),
+        "c": lattice.get("c"),
+        "alpha": lattice.get("alpha"),
+        "beta": lattice.get("beta"),
+        "gamma": lattice.get("gamma"),
+        "volume": lattice.get("volume"),
+    }
+
+
+def format_materials_project_doc(item: dict[str, Any]) -> dict[str, Any]:
+    material_id = str(item.get("material_id") or "")
+    symmetry = item.get("symmetry") or {}
+    structure = item.get("structure") or {}
+    database_ids = item.get("database_IDs") or {}
+    return {
+        "material_id": material_id,
+        "formula": item.get("formula_pretty"),
+        "url": MaterialsProjectClient.material_url(material_id) if material_id else "",
+        "elements": item.get("elements") or [],
+        "nelements": item.get("nelements"),
+        "nsites": item.get("nsites"),
+        "density_g_cm3": item.get("density"),
+        "band_gap_ev": item.get("band_gap"),
+        "is_gap_direct": item.get("is_gap_direct"),
+        "is_metal": item.get("is_metal"),
+        "fermi_energy_ev": item.get("efermi"),
+        "energy_above_hull_ev_atom": item.get("energy_above_hull"),
+        "formation_energy_ev_atom": item.get("formation_energy_per_atom"),
+        "is_stable": item.get("is_stable"),
+        "crystal_system": item.get("crystal_system") or symmetry.get("crystal_system"),
+        "spacegroup_symbol": symmetry.get("symbol"),
+        "spacegroup_number": symmetry.get("number"),
+        "point_group": symmetry.get("point_group"),
+        "volume_a3": item.get("volume"),
+        "lattice": lattice_summary(structure),
+        "database_ids": database_ids,
+        "icsd_ids": database_ids.get("icsd", []) if isinstance(database_ids, dict) else [],
+        "theoretical": item.get("theoretical"),
+        "deprecated": item.get("deprecated"),
+        "raw": item,
+    }
 
 
 def get_material(query: str, client: MaterialsProjectClient) -> Material:
@@ -1298,6 +1485,190 @@ def weighted_average(materials: Iterable[tuple[Material, float]], attr: str) -> 
         if value > 0:
             values.append(value * fraction)
     return sum(values)
+
+
+def is_insulating_component(material: Material) -> bool:
+    text = f"{material.name} {material.category} {material.crystal_structure}".lower()
+    if material.electrical_conductivity_s_m <= 1.0e-6:
+        return True
+    if material.band_gap_ev >= 3.0:
+        return True
+    return any(
+        token in text
+        for token in (
+            "oxido",
+            "oxide",
+            "ceramico",
+            "fosfato",
+            "fluoreto",
+            "silicato",
+            "sal ",
+            "isolante",
+            "dielet",
+        )
+    )
+
+
+def is_conductive_component(material: Material) -> bool:
+    text = f"{material.name} {material.category}".lower()
+    if "supercondutor" in text or "metalica" in text or "condutor" in text:
+        return material.electrical_conductivity_s_m >= 1.0e5
+    if "metal" in text and "semicondutor" not in text and "metaloide" not in text:
+        return material.electrical_conductivity_s_m >= 1.0e5
+    return material.electrical_conductivity_s_m >= 1.0e6 and material.band_gap_ev < 0.5
+
+
+def effective_electrical_conductivity(selected: list[tuple[Material, float]]) -> float:
+    conductor_fraction = sum(
+        fraction for material, fraction in selected if is_conductive_component(material)
+    )
+    insulating_fraction = sum(
+        fraction for material, fraction in selected if is_insulating_component(material)
+    )
+    arithmetic = weighted_average(selected, "electrical_conductivity_s_m")
+
+    if conductor_fraction >= 0.5 and insulating_fraction < 0.5:
+        return arithmetic
+
+    log_sigma = 0.0
+    for material, fraction in selected:
+        sigma = max(material.electrical_conductivity_s_m, 1.0e-18)
+        log_sigma += fraction * math.log10(sigma)
+    geometric = 10 ** log_sigma
+
+    if conductor_fraction >= 0.35 and insulating_fraction < 0.35:
+        return max(geometric, arithmetic * 0.05)
+    return geometric
+
+
+def literature_electrical_class(material: Material) -> tuple[str, str]:
+    text = f"{material.name} {material.formula} {material.category} {material.crystal_structure}".lower()
+
+    if any(token in text for token in ("supercondutor", "condutor transparente", "perovskita condutora")):
+        return "condutor", "classe por literatura/catalogo: material descrito como condutor"
+    if "metalica" in text or (
+        "metal" in text and "metaloide" not in text and "semicondutor" not in text
+    ):
+        return "condutor", "classe por literatura/catalogo: metal ou liga metalica"
+    if "semicondutor" in text or "termoeletrico" in text or "fotovoltaico" in text:
+        return "semicondutor", "classe por literatura/catalogo: semicondutor/termoeletrico"
+    if "isolante topologico" in text:
+        return "semicondutor", "classe por literatura/catalogo: isolante topologico com comportamento semicondutor de bulk"
+    if any(
+        token in text
+        for token in (
+            "oxido",
+            "oxide",
+            "ceramico",
+            "fosfato",
+            "fluoreto",
+            "silicato",
+            "granada",
+            "sal ",
+            "dielet",
+            "isolante",
+        )
+    ):
+        if material.band_gap_ev >= 2.5 or material.electrical_conductivity_s_m <= 1.0e-6:
+            return "isolante", "classe por literatura/catalogo: oxido, ceramico, sal ou dieletrico"
+    return (
+        classify_electrical_behavior(material.band_gap_ev, material.electrical_conductivity_s_m),
+        "classe por propriedades catalogadas quando nao ha regra bibliografica especifica",
+    )
+
+
+def literature_composite_class(
+    selected: list[tuple[Material, float]],
+    band_gap_ev: float,
+    conductivity: float,
+) -> tuple[str, str, str]:
+    formulas = {material.formula for material, _fraction in selected}
+    if {"Nd2O3", "Al", "O"}.issubset(formulas):
+        return (
+            "isolante",
+            "alta",
+            "Classe baseada em literatura de oxidos/perovskitas de terra rara: a fase oxidica Nd-Al-O e tratada como isolante/dieletrica, mesmo contendo Al na mistura.",
+        )
+
+    class_fractions = {"isolante": 0.0, "semicondutor": 0.0, "condutor": 0.0}
+    basis_parts = []
+    for material, fraction in selected:
+        material_class, material_basis = literature_electrical_class(material)
+        class_fractions[material_class] += fraction
+        basis_parts.append(
+            f"{material.formula}: {material_class} ({round(fraction * 100, 1)}%)"
+        )
+
+    if class_fractions["isolante"] >= 0.5 and class_fractions["condutor"] < 0.35:
+        return (
+            "isolante",
+            "alta",
+            "Classe baseada em artigos/catalogo: matriz isolante predominante. "
+            + "; ".join(basis_parts),
+        )
+    if class_fractions["condutor"] >= 0.5 and class_fractions["isolante"] < 0.4:
+        return (
+            "condutor",
+            "alta",
+            "Classe baseada em artigos/catalogo: fase condutora predominante ou percolante. "
+            + "; ".join(basis_parts),
+        )
+    if class_fractions["semicondutor"] >= 0.35:
+        return (
+            "semicondutor",
+            "media",
+            "Classe baseada em artigos/catalogo: fase semicondutora relevante na composicao. "
+            + "; ".join(basis_parts),
+        )
+
+    fallback = classify_electrical_behavior(band_gap_ev, conductivity)
+    return (
+        fallback,
+        "media",
+        "Classe definida por propriedades catalogadas e regra de percolacao quando a literatura dos componentes e mista. "
+        + "; ".join(basis_parts),
+    )
+
+
+def literature_band_gap_basis(
+    selected: list[tuple[Material, float]],
+    band_gap_ev: float,
+) -> tuple[str, str]:
+    formulas = {material.formula for material, _fraction in selected}
+    if {"Nd2O3", "Al", "O"}.issubset(formulas):
+        return (
+            "media",
+            "Band gap estimado por literatura/catalogo de fase oxidica Nd-Al-O. Para valor final de fase sintetizada, confirme por artigo experimental, UV-Vis/Tauc ou DFT.",
+        )
+
+    if len(selected) == 1:
+        material, _fraction = selected[0]
+        material_class, _basis = literature_electrical_class(material)
+        if material_class == "condutor" and band_gap_ev <= 0.1:
+            return (
+                "alta",
+                f"Band gap ~0 eV por literatura/catalogo: {material.formula} e tratado como condutor/metalico.",
+            )
+        if material.band_gap_ev > 0:
+            return (
+                "alta",
+                f"Band gap de {material.formula} vem do catalogo local baseado em valores de literatura para o material.",
+            )
+        return (
+            "media",
+            f"Band gap de {material.formula} tratado como 0 eV por falta de gap catalogado; confira literatura especifica se houver fase semicondutora.",
+        )
+
+    parts = [
+        f"{material.formula}: {material.band_gap_ev:g} eV ({round(fraction * 100, 1)}%)"
+        for material, fraction in selected
+    ]
+    return (
+        "media",
+        "Band gap efetivo estimado por media ponderada de valores catalogados/literatura dos componentes. "
+        "Para mistura com nova fase cristalina, use artigos experimentais, UV-Vis/Tauc ou DFT para validar. "
+        + "; ".join(parts),
+    )
 
 
 def estimate_seebeck_uv_k(material: Material) -> float:
@@ -1344,11 +1715,88 @@ def thermoelectric_values(material: Material) -> dict[str, float]:
     }
 
 
-def dominant_structure(selected: list[tuple[Material, float]]) -> str:
+def pick_materials_project_structure(results: list[dict[str, Any]]) -> Optional[dict[str, Any]]:
+    if not results:
+        return None
+
+    def sort_key(item: dict[str, Any]) -> tuple[int, float, str]:
+        hull = item.get("energy_above_hull_ev_atom")
+        hull_value = float(hull) if isinstance(hull, (int, float)) else 999.0
+        stable_rank = 0 if item.get("is_stable") else 1
+        return stable_rank, hull_value, str(item.get("material_id") or "")
+
+    return sorted(results, key=sort_key)[0]
+
+
+def estimated_structure_from_components(selected: list[tuple[Material, float]]) -> str:
     totals: dict[str, float] = {}
     for material, fraction in selected:
-        totals[material.crystal_structure] = totals.get(material.crystal_structure, 0) + fraction
-    return max(totals.items(), key=lambda item: item[1])[0]
+        totals[material.crystal_structure] = totals.get(material.crystal_structure, 0.0) + fraction
+    if not totals:
+        return "estrutura estimada"
+    structure, fraction = max(totals.items(), key=lambda item: item[1])
+    return f"{structure} estimada por componentes ({round(fraction * 100, 1)}%)"
+
+
+def crystallographic_structure_from_sources(
+    selected: list[tuple[Material, float]],
+    client: MaterialsProjectClient,
+) -> tuple[str, str, str, str]:
+    if len(selected) == 1:
+        material, _fraction = selected[0]
+        source = "Materials Project" if material.source == "materials_project" else "catalogo local/literatura"
+        return (
+            material.crystal_structure,
+            "alta",
+            f"Rede cristalina do material {material.formula} obtida de {source}; nao foi inferida por mistura.",
+            "sim",
+        )
+
+    system_query = " ".join(
+        sorted(
+            {
+                element
+                for material, _fraction in selected
+                for element in elements_from_formula(material.formula)
+            }
+        )
+    )
+    if client.api_key and requests is not None and system_query:
+        mp_result = client.search_system(system_query, limit=12)
+        chosen = pick_materials_project_structure(mp_result.get("results", []))
+        if chosen:
+            crystal = chosen.get("crystal_system") or "estrutura cristalina reportada"
+            symbol = chosen.get("spacegroup_symbol")
+            number = chosen.get("spacegroup_number")
+            group = f"; grupo espacial {symbol} ({number})" if symbol or number else ""
+            formula = chosen.get("formula") or "formula MP"
+            mpid = chosen.get("material_id") or "MP"
+            return (
+                f"{crystal}{group}",
+                "alta" if chosen.get("is_stable") else "media",
+                (
+                    f"Rede obtida do Materials Project para o sistema {mp_result.get('chemsys')}: "
+                    f"{formula} ({mpid}). A selecao prioriza fases estaveis/menor energia acima do hull."
+                ),
+                "sim",
+            )
+
+    estimated = estimated_structure_from_components(selected)
+    parts = [
+        f"{material.formula}: {material.crystal_structure} ({round(fraction * 100, 1)}%)"
+        for material, fraction in selected
+    ]
+    return (
+        estimated,
+        "baixa",
+        (
+            "AVISO: nao foi encontrada rede cristalina confirmada por artigo, Materials Project ou ICSD "
+            "para a fase final escolhida. A rede mostrada e uma estimativa/fallback baseada na estrutura "
+            "mais representativa dos componentes, nao uma fase experimental confirmada. Estruturas dos componentes: "
+            + "; ".join(parts)
+        ),
+        "estimada",
+    )
 
 
 def estimate_lattice_a_angstrom(material: Material) -> float:
@@ -1390,6 +1838,59 @@ ORTHORHOMBIC_LATTICE_A = {
     "SnSe": (11.50, 4.15, 4.44),
 }
 
+DEFAULT_XRD_SETTINGS: dict[str, Any] = {
+    "wavelength_a": 1.5406,
+    "x_min": 5.0,
+    "x_max": 95.0,
+    "x_step": 0.05,
+    "number_of_elements": 6,
+    "icsd_reference": "",
+}
+
+
+def clamp_float(value: Any, default: float, minimum: float, maximum: float) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return default
+    if not math.isfinite(number):
+        return default
+    return max(minimum, min(maximum, number))
+
+
+def normalize_xrd_settings(settings: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+    settings = settings or {}
+    normalized = {
+        "wavelength_a": clamp_float(
+            settings.get("wavelength_a", settings.get("wavelength")),
+            DEFAULT_XRD_SETTINGS["wavelength_a"],
+            0.1,
+            5.0,
+        ),
+        "x_min": clamp_float(settings.get("x_min"), DEFAULT_XRD_SETTINGS["x_min"], 0.0, 170.0),
+        "x_max": clamp_float(settings.get("x_max"), DEFAULT_XRD_SETTINGS["x_max"], 1.0, 180.0),
+        "x_step": clamp_float(settings.get("x_step"), DEFAULT_XRD_SETTINGS["x_step"], 0.005, 5.0),
+        "number_of_elements": int(
+            clamp_float(
+                settings.get("number_of_elements"),
+                DEFAULT_XRD_SETTINGS["number_of_elements"],
+                1,
+                30,
+            )
+        ),
+        "icsd_reference": str(settings.get("icsd_reference") or "").strip(),
+    }
+    if normalized["x_min"] >= normalized["x_max"]:
+        normalized["x_min"], normalized["x_max"] = (
+            DEFAULT_XRD_SETTINGS["x_min"],
+            DEFAULT_XRD_SETTINGS["x_max"],
+        )
+    span = normalized["x_max"] - normalized["x_min"]
+    max_points = 2500
+    if span / normalized["x_step"] > max_points:
+        normalized["x_step"] = round(span / max_points, 4)
+    return normalized
+
 
 def orthorhombic_hkl() -> list[tuple[int, int, int, float]]:
     return [
@@ -1415,11 +1916,20 @@ def orthorhombic_d_spacing_a(
     return 1 / math.sqrt(reciprocal)
 
 
-def estimate_xrd_peaks(selected: list[tuple[Material, float]]) -> list[dict[str, Any]]:
-    wavelength_a = 1.5406  # Cu K-alpha, angstrom
+def estimate_xrd_peaks(
+    selected: list[tuple[Material, float]],
+    xrd_settings: Optional[dict[str, Any]] = None,
+) -> list[dict[str, Any]]:
+    settings = normalize_xrd_settings(xrd_settings)
+    wavelength_a = settings["wavelength_a"]
+    x_min = settings["x_min"]
+    x_max = settings["x_max"]
     peaks: list[dict[str, Any]] = []
+    selected_phases = sorted(selected, key=lambda item: item[1], reverse=True)[
+        : settings["number_of_elements"]
+    ]
 
-    for material, fraction in selected:
+    for material, fraction in selected_phases:
         if material.formula in ORTHORHOMBIC_LATTICE_A:
             lattice = ORTHORHOMBIC_LATTICE_A[material.formula]
             hkls = orthorhombic_hkl()
@@ -1435,7 +1945,7 @@ def estimate_xrd_peaks(selected: list[tuple[Material, float]]) -> list[dict[str,
             if ratio <= 0 or ratio >= 1:
                 continue
             two_theta = 2 * math.degrees(math.asin(ratio))
-            if 5 <= two_theta <= 95:
+            if x_min <= two_theta <= x_max:
                 peaks.append(
                     {
                         "material": material.name,
@@ -1455,39 +1965,90 @@ def estimate_xrd_peaks(selected: list[tuple[Material, float]]) -> list[dict[str,
     return peaks[:24]
 
 
+def estimate_xrd_profile(
+    peaks: list[dict[str, Any]],
+    xrd_settings: Optional[dict[str, Any]] = None,
+) -> list[dict[str, float]]:
+    settings = normalize_xrd_settings(xrd_settings)
+    x_min = settings["x_min"]
+    x_max = settings["x_max"]
+    x_step = settings["x_step"]
+    sigma = max(0.08, x_step * 2.5)
+    points: list[dict[str, float]] = []
+    count = int((x_max - x_min) / x_step) + 1
+
+    for index in range(count):
+        two_theta = x_min + index * x_step
+        intensity = 0.0
+        for peak in peaks:
+            center = float(peak["two_theta_deg"])
+            relative = float(peak.get("relative_intensity", 0.0))
+            intensity += relative * math.exp(-0.5 * ((two_theta - center) / sigma) ** 2)
+        points.append(
+            {
+                "two_theta_deg": round(two_theta, 4),
+                "intensity": round(min(100.0, intensity), 4),
+            }
+        )
+    return points
+
+
+def describe_icsd_source(settings: dict[str, Any]) -> str:
+    if settings["icsd_reference"]:
+        return (
+            "referencia ICSD informada; acesso automatico aos dados reais requer "
+            "licenca/credenciais do ICSD API Service"
+        )
+    return "modelo local idealizado; informe uma referencia ICSD quando tiver acesso/licenca"
+
+
 def simulate_composite(
     composition: Dict[str, float],
     client: Optional[MaterialsProjectClient] = None,
+    xrd_settings: Optional[dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     client = client or MaterialsProjectClient()
     composition, _compound_message = canonicalize_composition(composition)
     fractions = normalize_fractions(composition)
     selected = [(get_material(name, client), frac) for name, frac in fractions.items()]
+    xrd_settings = normalize_xrd_settings(xrd_settings)
+    xrd_peaks = estimate_xrd_peaks(selected, xrd_settings)
 
     density = weighted_average(selected, "density_g_cm3")
     modulus = weighted_average(selected, "elastic_modulus_gpa")
     thermal = weighted_average(selected, "thermal_conductivity_w_mk")
-    electrical = weighted_average(selected, "electrical_conductivity_s_m")
+    electrical = effective_electrical_conductivity(selected)
     band_gap = weighted_average(selected, "band_gap_ev")
     melting_point = weighted_average(selected, "melting_point_c")
     atomic_radius = weighted_average(selected, "atomic_radius_pm")
     electronegativity = weighted_average(selected, "electronegativity")
     hardness = weighted_average(selected, "hardness_vickers_hv")
+    molar_mass = weighted_average(selected, "atomic_mass_u")
     seebeck = sum(estimate_seebeck_uv_k(material) * fraction for material, fraction in selected)
     seebeck_v_k = seebeck * 1.0e-6
     power_factor = seebeck_v_k * seebeck_v_k * electrical
     zt_300k = power_factor * 300 / thermal if thermal > 0 else 0
+    electrical_class, class_confidence, class_basis = literature_composite_class(
+        selected, band_gap, electrical
+    )
+    band_gap_confidence, band_gap_basis = literature_band_gap_basis(selected, band_gap)
+    structure_name, structure_confidence, structure_basis, structure_status = (
+        crystallographic_structure_from_sources(selected, client)
+    )
 
     return {
         "formula_aproximada": " + ".join(
             f"{fraction:.2f}*{material.formula}" for material, fraction in selected
         ),
+        "massa_molar_g_mol": round(molar_mass, 3),
         "densidade_g_cm3": round(density, 3),
         "modulo_elastico_gpa": round(modulus, 3),
         "condutividade_termica_w_mk": round(thermal, 3),
         "condutividade_eletrica_s_m": round(electrical, 6),
         "resistividade_ohm_m": round(1 / electrical, 12) if electrical > 0 else "n/a",
         "band_gap_ev": round(band_gap, 3),
+        "confianca_band_gap": band_gap_confidence,
+        "base_bibliografica_band_gap": band_gap_basis,
         "ponto_fusao_c": round(melting_point, 1),
         "raio_atomico_pm": round(atomic_radius, 1),
         "eletronegatividade_media": round(electronegativity, 3),
@@ -1495,13 +2056,19 @@ def simulate_composite(
         "seebeck_uv_k": round(seebeck, 3),
         "fator_potencia_w_mk2": round(power_factor, 8),
         "zt_300k": round(zt_300k, 4),
-        "estrutura_predominante": dominant_structure(selected),
-        "classe_eletrica": classify_electrical_behavior(band_gap, electrical),
+        "estrutura_predominante": structure_name,
+        "confianca_estrutura": structure_confidence,
+        "base_cristalografica": structure_basis,
+        "estrutura_confirmada": structure_status,
+        "classe_eletrica": electrical_class,
+        "confianca_classe": class_confidence,
+        "base_bibliografica": class_basis,
         "indicacao": suggest_application(density, modulus, thermal, electrical, band_gap),
         "componentes": [
             {
                 **material.to_dict(),
                 "fraction": round(fraction, 4),
+                "classe_literatura": literature_electrical_class(material)[0],
                 **{
                     key: round(value, 8)
                     for key, value in thermoelectric_values(material).items()
@@ -1510,18 +2077,25 @@ def simulate_composite(
             for material, fraction in selected
         ],
         "xrd": {
-            "radiacao": "Cu K-alpha",
-            "comprimento_onda_a": 1.5406,
+            "radiacao": "lambda configuravel",
+            "comprimento_onda_a": round(xrd_settings["wavelength_a"], 6),
+            "x_min": xrd_settings["x_min"],
+            "x_max": xrd_settings["x_max"],
+            "x_step": xrd_settings["x_step"],
+            "number_of_elements": xrd_settings["number_of_elements"],
+            "icsd_reference": xrd_settings["icsd_reference"],
+            "fonte_cristalografica": describe_icsd_source(xrd_settings),
             "observacao": "picos aproximados calculados por lei de Bragg e rede idealizada",
-            "picos": estimate_xrd_peaks(selected),
+            "picos": xrd_peaks,
+            "perfil": estimate_xrd_profile(xrd_peaks, xrd_settings),
         },
     }
 
 
 def classify_electrical_behavior(band_gap_ev: float, conductivity: float) -> str:
-    if conductivity >= 1.0e6 or band_gap_ev < 0.1:
+    if conductivity >= 1.0e6:
         return "condutor"
-    if conductivity >= 1.0e-6 or band_gap_ev < 3.0:
+    if conductivity >= 1.0e-5 or band_gap_ev < 3.0:
         return "semicondutor"
     return "isolante"
 

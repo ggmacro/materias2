@@ -18,8 +18,10 @@ from material_simulator import (
     MaterialsProjectClient,
     canonicalize_composition,
     local_material_key,
+    materials_project_query_from_composition,
     simulate_composite,
 )
+from stoichiometry import calculate_stoichiometry
 
 
 ROOT = Path(__file__).resolve().parent
@@ -552,11 +554,15 @@ class AppHandler(BaseHTTPRequestHandler):
 
         if parsed.path == "/api/simulate":
             composition = payload.get("composition") or {}
+            xrd_settings = payload.get("xrd") or {}
             if not isinstance(composition, dict) or not composition:
                 json_response(self, {"error": "Envie composition com material: fracao."}, status=400)
                 return
+            if not isinstance(xrd_settings, dict):
+                json_response(self, {"error": "Envie xrd como objeto de parametros."}, status=400)
+                return
             try:
-                result = simulate_composite(composition, MaterialsProjectClient())
+                result = simulate_composite(composition, MaterialsProjectClient(), xrd_settings)
             except Exception as exc:
                 json_response(self, {"error": str(exc)}, status=400)
                 return
@@ -571,6 +577,38 @@ class AppHandler(BaseHTTPRequestHandler):
                 return
             query = build_research_query(composition, custom_query)
             json_response(self, run_research_search(query))
+            return
+
+        if parsed.path == "/api/materials-project":
+            composition = payload.get("composition") or {}
+            query = str(payload.get("query") or "").strip()
+            limit = int(payload.get("limit") or 8)
+            if not query:
+                if not isinstance(composition, dict) or not composition:
+                    json_response(self, {"error": "Envie composition ou query para Materials Project."}, status=400)
+                    return
+                query = materials_project_query_from_composition(composition)
+            result = MaterialsProjectClient().search_system(query, limit)
+            json_response(self, {"materials_project": result})
+            return
+
+        if parsed.path == "/api/stoichiometry":
+            equation = str(payload.get("equation") or "")
+            if not equation.strip():
+                json_response(self, {"error": "Envie uma equacao quimica."}, status=400)
+                return
+            try:
+                result = calculate_stoichiometry(
+                    equation,
+                    payload.get("quantity", 1),
+                    str(payload.get("unit") or "mol"),
+                    str(payload.get("base_species") or ""),
+                    payload.get("manual_coefficients"),
+                )
+            except Exception as exc:
+                json_response(self, {"error": str(exc)}, status=400)
+                return
+            json_response(self, {"stoichiometry": result})
             return
 
         json_response(self, {"error": "Rota nao encontrada."}, status=404)

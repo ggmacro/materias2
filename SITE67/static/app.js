@@ -19,6 +19,23 @@ const atomicStructureCanvas = document.querySelector("#atomicStructureCanvas");
 const propertyChart = document.querySelector("#propertyChart");
 const xrdChart = document.querySelector("#xrdChart");
 const xrdImage = document.querySelector("#xrdImage");
+const xrdWavelength = document.querySelector("#xrdWavelength");
+const xrdXMin = document.querySelector("#xrdXMin");
+const xrdXMax = document.querySelector("#xrdXMax");
+const xrdXStep = document.querySelector("#xrdXStep");
+const xrdElementCount = document.querySelector("#xrdElementCount");
+const icsdReference = document.querySelector("#icsdReference");
+const stoichEquation = document.querySelector("#stoichEquation");
+const stoichCoefficients = document.querySelector("#stoichCoefficients");
+const stoichBase = document.querySelector("#stoichBase");
+const stoichQuantity = document.querySelector("#stoichQuantity");
+const stoichUnit = document.querySelector("#stoichUnit");
+const stoichButton = document.querySelector("#stoichButton");
+const stoichResults = document.querySelector("#stoichResults");
+const mpQuery = document.querySelector("#mpQuery");
+const mpLimit = document.querySelector("#mpLimit");
+const mpButton = document.querySelector("#mpButton");
+const mpResults = document.querySelector("#mpResults");
 
 const metricLabels = {
   formula_aproximada: "Formula aproximada",
@@ -39,6 +56,9 @@ const metricLabels = {
   fator_potencia_w_mk2: "Fator de potencia (W/mK2)",
   zt_300k: "ZT estimado em 300 K",
   estrutura_predominante: "Estrutura predominante",
+  confianca_estrutura: "Confianca da estrutura",
+  base_cristalografica: "Base cristalografica",
+  estrutura_confirmada: "Estrutura confirmada?",
   classe_eletrica: "Classe eletrica",
   confianca_classe: "Confianca da classe",
   base_bibliografica: "Base bibliografica da classe",
@@ -190,6 +210,34 @@ function getComposition() {
   return composition;
 }
 
+function numericInputValue(input, fallback, min, max) {
+  const value = Number(input?.value);
+  if (!Number.isFinite(value)) {
+    return fallback;
+  }
+  return Math.max(min, Math.min(max, value));
+}
+
+function getXrdSettings() {
+  return {
+    wavelength_a: numericInputValue(xrdWavelength, 1.5406, 0.1, 5),
+    x_min: numericInputValue(xrdXMin, 5, 0, 170),
+    x_max: numericInputValue(xrdXMax, 95, 1, 180),
+    x_step: numericInputValue(xrdXStep, 0.05, 0.005, 5),
+    number_of_elements: Math.round(numericInputValue(xrdElementCount, 6, 1, 30)),
+    icsd_reference: icsdReference?.value.trim() || "",
+  };
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function formatValue(value) {
   if (typeof value !== "number") {
     return value;
@@ -207,10 +255,158 @@ function renderMetrics(simulation) {
       continue;
     }
     const card = document.createElement("article");
-    card.className = ["indicacao", "base_bibliografica", "base_bibliografica_band_gap"].includes(key) ? "metric metric-wide" : "metric";
+    card.className = [
+      "indicacao",
+      "base_bibliografica",
+      "base_bibliografica_band_gap",
+      "base_cristalografica",
+    ].includes(key) ? "metric metric-wide" : "metric";
     card.innerHTML = `<span>${metricLabels[key] || key}</span><strong>${formatValue(value)}</strong>`;
     metricsGrid.append(card);
   }
+}
+
+function renderStoichiometry(result) {
+  if (!stoichResults) {
+    return;
+  }
+  const rows = result.substancias
+    .map(
+      (item) => `
+        <tr>
+          <td>${escapeHtml(item.lado)}</td>
+          <td><strong>${escapeHtml(item.coeficiente)}</strong></td>
+          <td>${escapeHtml(item.formula)}</td>
+          <td>${formatValue(item.massa_molar_g_mol)}</td>
+          <td>${formatValue(item.massa_por_equacao_g)}</td>
+          <td>${formatValue(item.mols_calculados)}</td>
+          <td>${formatValue(item.massa_calculada_g)}</td>
+        </tr>
+      `
+    )
+    .join("");
+
+  stoichResults.className = "stoich-results";
+  stoichResults.innerHTML = `
+    <div class="balanced-equation">${escapeHtml(result.equacao_balanceada)}</div>
+    <div class="stoich-base">
+      Base: ${escapeHtml(result.base.formula)} = ${formatValue(result.base.quantidade)}
+      ${escapeHtml(result.base.unidade)} (${formatValue(result.base.mols)} mol)
+    </div>
+    <div class="stoich-base">
+      Balanceamento: ${escapeHtml(result.modo_balanceamento || "automatico")}
+      ${result.coeficientes ? ` | coeficientes: ${escapeHtml(result.coeficientes.join(", "))}` : ""}
+    </div>
+    <div class="table-wrap">
+      <table class="stoich-table">
+        <thead>
+          <tr>
+            <th>Lado</th>
+            <th>Coef.</th>
+            <th>Formula</th>
+            <th>Massa molar</th>
+            <th>g/equacao</th>
+            <th>mol calc.</th>
+            <th>g calc.</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <p class="article-meta">${escapeHtml(result.observacao)}</p>
+  `;
+}
+
+function renderStoichiometryError(message) {
+  if (!stoichResults) {
+    return;
+  }
+  stoichResults.className = "stoich-results empty";
+  stoichResults.textContent = message;
+}
+
+function mpValue(value, suffix = "") {
+  if (value === null || value === undefined || value === "") {
+    return "n/a";
+  }
+  return `${formatValue(value)}${suffix}`;
+}
+
+function renderMaterialsProject(result) {
+  if (!mpResults) {
+    return;
+  }
+  const links = result?.links || {};
+  const linkHtml = `
+    <div class="mp-links">
+      ${links.materials ? `<a href="${escapeHtml(links.materials)}" target="_blank" rel="noreferrer">Abrir materiais</a>` : ""}
+      ${links.molecules ? `<a href="${escapeHtml(links.molecules)}" target="_blank" rel="noreferrer">Abrir moleculas</a>` : ""}
+    </div>
+  `;
+
+  if (!result?.results?.length) {
+    mpResults.className = "mp-results empty";
+    mpResults.innerHTML = `
+      <strong>${escapeHtml(result?.message || "Sem resultados do Materials Project.")}</strong>
+      ${result?.chemsys ? `<span>Sistema: ${escapeHtml(result.chemsys)}</span>` : ""}
+      ${linkHtml}
+    `;
+    return;
+  }
+
+  const cards = result.results
+    .map((item) => {
+      const rawPreview = escapeHtml(JSON.stringify(item.raw || {}, null, 2).slice(0, 2400));
+      return `
+        <article class="mp-card">
+          <div class="mp-card-head">
+            <div>
+              <p class="article-provider">${escapeHtml(item.material_id || "MP")}</p>
+              <h3>${escapeHtml(item.formula || "Formula")}</h3>
+            </div>
+            ${item.url ? `<a href="${escapeHtml(item.url)}" target="_blank" rel="noreferrer">Abrir</a>` : ""}
+          </div>
+          <dl class="mp-grid">
+            <div><dt>Sistema cristalino</dt><dd>${escapeHtml(item.crystal_system || "n/a")}</dd></div>
+            <div><dt>Grupo espacial</dt><dd>${escapeHtml(item.spacegroup_symbol || "n/a")} ${escapeHtml(item.spacegroup_number ?? "")}</dd></div>
+            <div><dt>Band gap</dt><dd>${mpValue(item.band_gap_ev, " eV")}</dd></div>
+            <div><dt>Densidade</dt><dd>${mpValue(item.density_g_cm3, " g/cm3")}</dd></div>
+            <div><dt>E hull</dt><dd>${mpValue(item.energy_above_hull_ev_atom, " eV/atom")}</dd></div>
+            <div><dt>Formacao</dt><dd>${mpValue(item.formation_energy_ev_atom, " eV/atom")}</dd></div>
+            <div><dt>Estavel</dt><dd>${item.is_stable ? "sim" : "nao"}</dd></div>
+            <div><dt>Metal</dt><dd>${item.is_metal ? "sim" : "nao"}</dd></div>
+            <div><dt>Sites</dt><dd>${mpValue(item.nsites)}</dd></div>
+            <div><dt>Volume</dt><dd>${mpValue(item.volume_a3, " A3")}</dd></div>
+          </dl>
+          <div class="mp-lattice">
+            Rede: a=${mpValue(item.lattice?.a, " A")},
+            b=${mpValue(item.lattice?.b, " A")},
+            c=${mpValue(item.lattice?.c, " A")},
+            alpha=${mpValue(item.lattice?.alpha, " deg")},
+            beta=${mpValue(item.lattice?.beta, " deg")},
+            gamma=${mpValue(item.lattice?.gamma, " deg")}
+          </div>
+          <div class="article-meta">
+            ICSD: ${escapeHtml((item.icsd_ids || []).join(", ") || "n/a")}
+          </div>
+          <details>
+            <summary>Ver dados brutos recebidos da API</summary>
+            <pre>${rawPreview}</pre>
+          </details>
+        </article>
+      `;
+    })
+    .join("");
+
+  mpResults.className = "mp-results";
+  mpResults.innerHTML = `
+    <div class="mp-summary">
+      <strong>${escapeHtml(result.message || "Dados do Materials Project.")}</strong>
+      <span>Sistema: ${escapeHtml(result.chemsys || result.query || "")}</span>
+      ${linkHtml}
+    </div>
+    ${cards}
+  `;
 }
 
 function renderArticles(articles) {
@@ -316,6 +512,9 @@ function drawCrystal(simulation) {
   const ctx = clearCanvas(crystalCanvas);
   const components = simulation.componentes || [];
   const structure = String(simulation.estrutura_predominante || "amorfa").toLowerCase();
+  const structureStatus = String(simulation.estrutura_confirmada || "").toLowerCase();
+  const confirmed = structureStatus === "sim";
+  const estimated = structureStatus === "estimada";
   const points = latticePoints(structure);
   const cells = [
     [55, 48], [240, 48], [425, 48],
@@ -323,9 +522,13 @@ function drawCrystal(simulation) {
   ];
 
   cells.forEach(([originX, originY], cellIndex) => {
-    ctx.strokeStyle = "rgba(17, 97, 91, 0.32)";
+    ctx.strokeStyle = estimated ? "rgba(232, 93, 63, 0.34)" : "rgba(17, 97, 91, 0.32)";
     ctx.lineWidth = 2;
+    if (estimated) {
+      ctx.setLineDash([7, 6]);
+    }
     ctx.strokeRect(originX, originY, 120, 120);
+    ctx.setLineDash([]);
 
     points.forEach(([px, py], pointIndex) => {
       const component = components[(pointIndex + cellIndex) % Math.max(components.length, 1)] || {};
@@ -345,7 +548,13 @@ function drawCrystal(simulation) {
   ctx.fillText(`Estrutura: ${simulation.estrutura_predominante}`, 18, 24);
   ctx.fillStyle = "#66716d";
   ctx.font = "13px Arial";
-  ctx.fillText("Representacao simplificada da celula/rede dominante", 18, crystalCanvas.height - 16);
+  if (estimated) {
+    ctx.fillText("Estimativa por componentes: nao e rede confirmada por artigo/API.", 18, crystalCanvas.height - 16);
+  } else if (!confirmed) {
+    ctx.fillText("Rede nao confirmada por fonte externa.", 18, crystalCanvas.height - 16);
+  } else {
+    ctx.fillText("Representacao simplificada da celula/rede confirmada", 18, crystalCanvas.height - 16);
+  }
 }
 
 function parseFormula(formula) {
@@ -393,10 +602,10 @@ function drawBond(ctx, x1, y1, x2, y2) {
   ctx.stroke();
 }
 
-function formulaElementsForStructure(component) {
+function formulaElementsForStructure(component, maxElements = 6) {
   const parsed = parseFormula(component?.formula || component?.symbol || "");
   if (parsed.length) {
-    return parsed;
+    return parsed.slice(0, maxElements);
   }
   return [{ symbol: component?.symbol || "M", amount: 1 }];
 }
@@ -562,7 +771,8 @@ function drawAtomicStructure(simulation) {
   const ctx = clearCanvas(atomicStructureCanvas);
   const components = simulation.componentes || [];
   const primary = [...components].sort((a, b) => b.fraction - a.fraction)[0] || {};
-  const elements = formulaElementsForStructure(primary);
+  const maxElements = Number(simulation.xrd?.number_of_elements) || 6;
+  const elements = formulaElementsForStructure(primary, maxElements);
   const structure = String(primary.crystal_structure || simulation.estrutura_predominante || "").toLowerCase();
   const category = String(primary.category || "").toLowerCase();
 
@@ -629,15 +839,50 @@ function drawPropertyChart(components) {
   });
 }
 
+function xrdRange(xrd) {
+  const xMin = Number(xrd?.x_min ?? 5);
+  const xMax = Number(xrd?.x_max ?? 95);
+  if (!Number.isFinite(xMin) || !Number.isFinite(xMax) || xMin >= xMax) {
+    return { xMin: 5, xMax: 95 };
+  }
+  return { xMin, xMax };
+}
+
+function niceTickStep(span) {
+  const raw = Math.max(span / 5, 0.1);
+  const magnitude = 10 ** Math.floor(Math.log10(raw));
+  const normalized = raw / magnitude;
+  if (normalized <= 1) return magnitude;
+  if (normalized <= 2) return 2 * magnitude;
+  if (normalized <= 5) return 5 * magnitude;
+  return 10 * magnitude;
+}
+
 function drawXrdChart(xrd) {
   const ctx = clearCanvas(xrdChart);
-  const peaks = xrd?.picos || [];
+  const { xMin, xMax } = xrdRange(xrd);
+  const peaks = (xrd?.picos || []).filter(
+    (peak) => peak.two_theta_deg >= xMin && peak.two_theta_deg <= xMax
+  );
+  const profile = (xrd?.perfil || []).filter(
+    (point) => point.two_theta_deg >= xMin && point.two_theta_deg <= xMax
+  );
   const left = 54;
   const right = 24;
-  const top = 28;
+  const top = 42;
   const bottom = 44;
   const width = xrdChart.width - left - right;
   const height = xrdChart.height - top - bottom;
+  const xForTheta = (theta) => left + ((theta - xMin) / (xMax - xMin)) * width;
+  const yForIntensity = (intensity) => top + height - (Math.max(0, intensity) / 100) * height;
+
+  ctx.fillStyle = "#1d2321";
+  ctx.font = "700 15px Arial";
+  ctx.fillText(
+    `DRX: lambda ${formatValue(xrd?.comprimento_onda_a || 1.5406)} A | ${xMin} a ${xMax} 2theta`,
+    left,
+    20
+  );
 
   ctx.strokeStyle = "#d9ded8";
   ctx.lineWidth = 1;
@@ -657,8 +902,24 @@ function drawXrdChart(xrd) {
   ctx.lineTo(left + width, top + height);
   ctx.stroke();
 
+  if (profile.length) {
+    ctx.strokeStyle = "rgba(17, 97, 91, 0.78)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    profile.forEach((point, index) => {
+      const x = xForTheta(point.two_theta_deg);
+      const y = yForIntensity(point.intensity);
+      if (index === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    });
+    ctx.stroke();
+  }
+
   peaks.forEach((peak) => {
-    const x = left + ((peak.two_theta_deg - 5) / 90) * width;
+    const x = xForTheta(peak.two_theta_deg);
     const barHeight = (peak.relative_intensity / 100) * height;
     ctx.strokeStyle = peak.color || "#11615b";
     ctx.lineWidth = 3;
@@ -687,15 +948,19 @@ function drawXrdChart(xrd) {
   ctx.fillText("Intensidade relativa", 0, 0);
   ctx.restore();
 
-  for (let t = 10; t <= 90; t += 20) {
-    const x = left + ((t - 5) / 90) * width;
-    ctx.fillText(String(t), x - 6, top + height + 18);
+  const tickStep = niceTickStep(xMax - xMin);
+  for (let t = Math.ceil(xMin / tickStep) * tickStep; t <= xMax; t += tickStep) {
+    const x = xForTheta(t);
+    ctx.fillText(formatValue(Number(t.toFixed(2))), x - 8, top + height + 18);
   }
 }
 
 function drawXrdImage(xrd) {
   const ctx = clearCanvas(xrdImage);
-  const peaks = xrd?.picos || [];
+  const { xMin, xMax } = xrdRange(xrd);
+  const peaks = (xrd?.picos || []).filter(
+    (peak) => peak.two_theta_deg >= xMin && peak.two_theta_deg <= xMax
+  );
   const cx = xrdImage.width / 2;
   const cy = xrdImage.height / 2;
   const maxRadius = Math.min(cx, cy) - 28;
@@ -707,7 +972,7 @@ function drawXrdImage(xrd) {
   ctx.fillRect(0, 0, xrdImage.width, xrdImage.height);
 
   peaks.forEach((peak) => {
-    const radius = 24 + ((peak.two_theta_deg - 5) / 90) * maxRadius;
+    const radius = 24 + ((peak.two_theta_deg - xMin) / (xMax - xMin)) * maxRadius;
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
     ctx.strokeStyle = peak.color || "#e85d3f";
@@ -724,7 +989,7 @@ function drawXrdImage(xrd) {
 
   ctx.fillStyle = "#ffffff";
   ctx.font = "13px Arial";
-  ctx.fillText("Imagem sintetica de aneis de difracao", 18, xrdImage.height - 18);
+  ctx.fillText(`Aneis sinteticos: ${xMin} a ${xMax} 2theta`, 18, xrdImage.height - 18);
 }
 
 function renderVisuals(simulation) {
@@ -746,22 +1011,32 @@ async function runSimulation() {
 
   runButton.disabled = true;
   setStatus("Simulando composicao e buscando artigos...");
+  const xrdSettings = getXrdSettings();
 
   try {
-    const [simulationData, researchData] = await Promise.all([
+    const [simulationData, researchData, mpData] = await Promise.all([
       api("/api/simulate", {
         method: "POST",
-        body: JSON.stringify({ composition }),
+        body: JSON.stringify({ composition, xrd: xrdSettings }),
       }),
       api("/api/research", {
         method: "POST",
         body: JSON.stringify({ composition, query: researchQuery.value }),
+      }),
+      api("/api/materials-project", {
+        method: "POST",
+        body: JSON.stringify({
+          composition,
+          query: mpQuery?.value || "",
+          limit: mpLimit?.value || 8,
+        }),
       }),
     ]);
 
     renderMetrics(simulationData.simulation);
     renderVisuals(simulationData.simulation);
     renderArticles(researchData.results);
+    renderMaterialsProject(mpData.materials_project);
 
     const searchUrl = `https://openalex.org/works?page=1&filter=default.search:${encodeURIComponent(
       researchData.query
@@ -775,6 +1050,60 @@ async function runSimulation() {
   }
 }
 
+async function runMaterialsProjectSearch() {
+  const composition = getComposition();
+  if (mpButton) {
+    mpButton.disabled = true;
+  }
+  try {
+    const data = await api("/api/materials-project", {
+      method: "POST",
+      body: JSON.stringify({
+        composition,
+        query: mpQuery?.value || "",
+        limit: mpLimit?.value || 8,
+      }),
+    });
+    renderMaterialsProject(data.materials_project);
+  } catch (error) {
+    renderMaterialsProject({ message: error.message, results: [], links: {} });
+  } finally {
+    if (mpButton) {
+      mpButton.disabled = false;
+    }
+  }
+}
+
+async function runStoichiometry() {
+  if (!stoichEquation?.value.trim()) {
+    renderStoichiometryError("Digite uma equacao quimica para calcular.");
+    return;
+  }
+  if (stoichButton) {
+    stoichButton.disabled = true;
+  }
+
+  try {
+    const data = await api("/api/stoichiometry", {
+      method: "POST",
+      body: JSON.stringify({
+        equation: stoichEquation.value,
+        manual_coefficients: stoichCoefficients?.value || "",
+        base_species: stoichBase?.value || "",
+        quantity: stoichQuantity?.value || 1,
+        unit: stoichUnit?.value || "mol",
+      }),
+    });
+    renderStoichiometry(data.stoichiometry);
+  } catch (error) {
+    renderStoichiometryError(error.message);
+  } finally {
+    if (stoichButton) {
+      stoichButton.disabled = false;
+    }
+  }
+}
+
 async function init() {
   setStatus("Carregando materiais...");
   const data = await api("/api/materials");
@@ -784,11 +1113,23 @@ async function init() {
   addRow("cobre", 0.25);
   addRow("silicio", 0.20);
   setStatus("Pronto para simular.");
-  await runSimulation();
+  await Promise.all([runSimulation(), runStoichiometry()]);
 }
 
 addRowButton.addEventListener("click", () => addRow());
 runButton.addEventListener("click", runSimulation);
+mpButton?.addEventListener("click", runMaterialsProjectSearch);
+mpQuery?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    runMaterialsProjectSearch();
+  }
+});
+stoichButton?.addEventListener("click", runStoichiometry);
+stoichEquation?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    runStoichiometry();
+  }
+});
 materialSearch?.addEventListener("input", refreshMaterialSelects);
 window.addEventListener("resize", () => {
   if (state.lastSimulation) {

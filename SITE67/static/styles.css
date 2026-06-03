@@ -76,6 +76,7 @@ h2 {
 }
 
 .primary-button,
+.secondary-button,
 .icon-button,
 .remove-button {
   border: 0;
@@ -94,6 +95,21 @@ h2 {
 }
 
 .primary-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.secondary-button {
+  width: 100%;
+  min-height: 40px;
+  margin-top: 12px;
+  border: 1px solid var(--accent);
+  background: #ffffff;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.secondary-button:disabled {
   cursor: wait;
   opacity: 0.72;
 }
@@ -160,6 +176,42 @@ input {
 
 .field input {
   color: var(--ink);
+}
+
+.panel-subheading {
+  margin: 20px 0 12px;
+}
+
+.xrd-controls {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.stoich-controls {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.mp-controls {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.control-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.control-grid .field span {
+  min-height: 32px;
+}
+
+.control-grid .field:last-child {
+  grid-column: span 2;
 }
 
 .status {
@@ -259,6 +311,154 @@ canvas {
   gap: 12px;
 }
 
+.stoich-panel {
+  margin-bottom: 24px;
+}
+
+.mp-panel {
+  margin-bottom: 24px;
+}
+
+.mp-results {
+  display: grid;
+  gap: 12px;
+}
+
+.mp-summary {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.mp-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mp-links a,
+.mp-card-head a {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mp-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.mp-card-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mp-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.mp-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.mp-grid div {
+  min-height: 68px;
+  padding: 10px;
+  background: #fbfcfa;
+  border: 1px solid var(--line);
+}
+
+.mp-grid dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.mp-grid dd {
+  margin: 6px 0 0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.mp-lattice {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.mp-card details {
+  color: var(--muted);
+}
+
+.mp-card summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.mp-card pre {
+  max-height: 260px;
+  overflow: auto;
+  padding: 12px;
+  background: #1d2321;
+  color: #f7f5ef;
+  font-size: 0.78rem;
+}
+
+.stoich-results {
+  display: grid;
+  gap: 12px;
+}
+
+.balanced-equation {
+  padding: 14px;
+  background: var(--soft);
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.stoich-base {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+}
+
+.stoich-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.stoich-table th,
+.stoich-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.stoich-table th {
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
 .article {
   display: grid;
   gap: 8px;
@@ -318,5 +518,15 @@ canvas {
   .visual-grid,
   .xrd-grid {
     grid-template-columns: 1fr;
+  }
+
+  .mp-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .control-grid,
+  .control-grid .field:last-child {
+    grid-template-columns: 1fr;
+    grid-column: auto;
   }
 }

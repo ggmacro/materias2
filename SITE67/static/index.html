@@ -45,11 +45,124 @@
                 value="composite material thermal mechanical electrical test"
               />
             </label>
+            <section class="xrd-controls" aria-label="Parametros XRD">
+              <div class="panel-subheading">
+                <p class="eyebrow">DRX / XRD</p>
+                <h2>Parametros do difratograma</h2>
+              </div>
+              <div class="control-grid">
+                <label class="field">
+                  <span>Wave Length (A)</span>
+                  <input id="xrdWavelength" type="number" min="0.1" max="5" step="0.0001" value="1.5406" />
+                </label>
+                <label class="field">
+                  <span>X min (2theta)</span>
+                  <input id="xrdXMin" type="number" min="0" max="170" step="0.1" value="5" />
+                </label>
+                <label class="field">
+                  <span>X max (2theta)</span>
+                  <input id="xrdXMax" type="number" min="1" max="180" step="0.1" value="95" />
+                </label>
+                <label class="field">
+                  <span>X step</span>
+                  <input id="xrdXStep" type="number" min="0.005" max="5" step="0.005" value="0.05" />
+                </label>
+                <label class="field">
+                  <span>Number of Elements</span>
+                  <input id="xrdElementCount" type="number" min="1" max="30" step="1" value="6" />
+                </label>
+                <label class="field">
+                  <span>Referencia ICSD</span>
+                  <input id="icsdReference" type="text" placeholder="codigo ICSD ou URL opcional" />
+                </label>
+              </div>
+            </section>
+            <section class="stoich-controls" aria-label="Calculadora de estequiometria">
+              <div class="panel-subheading">
+                <p class="eyebrow">Reacoes</p>
+                <h2>Estequiometria</h2>
+              </div>
+              <label class="field">
+                <span>Equacao quimica</span>
+                <input id="stoichEquation" type="text" value="HIO3 + NO2 = HNO2 + IO3" />
+              </label>
+              <label class="field">
+                <span>Balanceamento manual</span>
+                <input
+                  id="stoichCoefficients"
+                  type="text"
+                  placeholder="Opcional: ex. 2,1,2 na ordem da equacao"
+                />
+              </label>
+              <div class="control-grid">
+                <label class="field">
+                  <span>Substancia base</span>
+                  <input id="stoichBase" type="text" value="HIO3" />
+                </label>
+                <label class="field">
+                  <span>Quantidade</span>
+                  <input id="stoichQuantity" type="number" min="0" step="0.001" value="1" />
+                </label>
+                <label class="field">
+                  <span>Unidade</span>
+                  <select id="stoichUnit">
+                    <option value="mol">mol</option>
+                    <option value="g">g</option>
+                  </select>
+                </label>
+              </div>
+              <button id="stoichButton" class="secondary-button" type="button">
+                Calcular reacao
+              </button>
+            </section>
+            <section class="mp-controls" aria-label="Consulta Materials Project">
+              <div class="panel-subheading">
+                <p class="eyebrow">Materials Project</p>
+                <h2>Propriedades reais</h2>
+              </div>
+              <label class="field">
+                <span>Sistema ou formula</span>
+                <input id="mpQuery" type="text" placeholder="Ex: Gd Al O, Sn Se, Bi Te" />
+              </label>
+              <div class="control-grid">
+                <label class="field">
+                  <span>Resultados</span>
+                  <input id="mpLimit" type="number" min="1" max="25" step="1" value="8" />
+                </label>
+              </div>
+              <button id="mpButton" class="secondary-button" type="button">
+                Buscar Materials Project
+              </button>
+            </section>
             <p id="statusText" class="status">Pronto para simular.</p>
           </aside>
 
           <section class="results">
             <div class="metrics-grid" id="metricsGrid"></div>
+
+            <section class="chart-panel mp-panel">
+              <div class="visual-heading">
+                <div>
+                  <p class="eyebrow">Materials Project</p>
+                  <h2>Propriedades, estabilidade e estrutura</h2>
+                </div>
+              </div>
+              <div id="mpResults" class="mp-results empty">
+                Rode a simulacao ou busque um sistema para consultar o Materials Project.
+              </div>
+            </section>
+
+            <section class="chart-panel stoich-panel">
+              <div class="visual-heading">
+                <div>
+                  <p class="eyebrow">Estequiometria</p>
+                  <h2>Reacao balanceada e massas</h2>
+                </div>
+              </div>
+              <div id="stoichResults" class="stoich-results empty">
+                Informe uma equacao e calcule a reacao.
+              </div>
+            </section>
 
             <section class="visual-grid">
               <article class="visual-panel">

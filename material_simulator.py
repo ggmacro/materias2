@@ -531,6 +531,107 @@ ADVANCED_READY_MATERIALS = [
     ("yag_cerio", "YAG dopado com cerio", "Y3Al5O12:Ce", "YAG:Ce", "fosforo terra rara", 0, 593.62, 4.55, 280, 10.0, 1.0e-12, 6.40, 1940, 150, 1.65, "granada cubica", "#d8cf8d"),
     ("fosforo_europio_itrio", "Y2O3 dopado com europio", "Y2O3:Eu", "Y2O3:Eu", "fosforo terra rara", 0, 0, 5.05, 180, 12.0, 1.0e-12, 5.50, 2430, 160, 1.60, "bixbyita cubica", "#d98ea5"),
     ("aluminato_estroncio_europio", "Aluminato de estroncio europio disprosio", "SrAl2O4:Eu,Dy", "SrAl2O4", "fosforo persistente terra rara", 0, 0, 3.60, 150, 5.0, 1.0e-12, 5.80, 1900, 160, 1.55, "monoclinica", "#b7d48a"),
+    ("diamante", "Diamante", "C", "C", "carbono covalente", 6, 12.011, 3.51, 1050, 2200, 1.0e-13, 5.47, 3550, 70, 2.55, "diamante cubica", "#dceaf2"),
+    ("siliceno", "Siliceno", "Si", "Si", "material 2D", 14, 28.085, 2.33, 60, 20, 1.0e3, 0.02, 1414, 111, 1.90, "hexagonal 2D", "#7c8f97"),
+    ("cspbcl3", "Perovskita CsPbCl3", "CsPbCl3", "CsPbCl3", "perovskita halogenada", 0, 446.46, 4.20, 22, 0.6, 1.0e-7, 3.00, 645, 170, 2.30, "perovskita cubica", "#9aa36a"),
+    ("mapbbr3", "Perovskita MAPbBr3", "CH3NH3PbBr3", "MAPbBr3", "perovskita halogenada", 0, 478.98, 3.80, 18, 0.5, 1.0e-5, 2.20, 360, 170, 2.30, "perovskita cubica", "#7d8f42"),
+    ("mapbcl3", "Perovskita MAPbCl3", "CH3NH3PbCl3", "MAPbCl3", "perovskita halogenada", 0, 345.34, 3.10, 18, 0.5, 1.0e-6, 3.10, 360, 170, 2.30, "perovskita cubica", "#b2b875"),
+    ("fapbbr3", "Perovskita FAPbBr3", "HC(NH2)2PbBr3", "FAPbBr3", "perovskita halogenada", 0, 491.01, 3.90, 17, 0.5, 1.0e-5, 2.23, 360, 170, 2.30, "perovskita cubica", "#7c8a49"),
+    ("bismutato_sodio_bario", "Bismutato de sodio e bario", "BaNaBiO3", "BaNaBiO3", "perovskita oxida", 0, 432.30, 7.00, 140, 3.5, 1.0e-4, 0.80, 900, 175, 1.80, "perovskita cubica", "#8f8792"),
+    ("niobato_potassio_sodio", "Niobato de potassio sodio", "K0.5Na0.5NbO3", "KNN", "perovskita piezoeletrica", 0, 164.40, 4.50, 120, 3.0, 1.0e-12, 3.20, 1050, 155, 1.55, "perovskita ortorrombica", "#c9c4b7"),
+    ("zirconato_titanato_chumbo", "Zirconato titanato de chumbo", "Pb(Zr,Ti)O3", "PZT", "perovskita piezoeletrica", 0, 328.50, 7.80, 63, 1.2, 1.0e-10, 3.20, 1280, 170, 1.85, "perovskita tetragonal/romboedrica", "#a9a7a1"),
+    ("niquelato_lantanio", "Niquelato de lantanio", "LaNiO3", "LaNiO3", "perovskita metalica", 0, 245.60, 7.20, 160, 6.0, 1.0e5, 0.0, 1100, 160, 1.65, "perovskita romboedrica", "#55595d"),
+    ("cobaltita_lantanio", "Cobaltita de lantanio", "LaCoO3", "LaCoO3", "perovskita oxida", 0, 245.84, 7.10, 150, 4.0, 1.0e2, 0.10, 1350, 160, 1.65, "perovskita romboedrica", "#5a4f58"),
+    ("ferrita_bismuto", "Ferrita de bismuto", "BiFeO3", "BiFeO3", "perovskita multiferroica", 0, 312.82, 8.30, 150, 2.0, 1.0e-5, 2.70, 825, 160, 1.95, "perovskita romboedrica", "#9b756f"),
+    ("zirconato_estroncio", "Zirconato de estroncio", "SrZrO3", "SrZrO3", "perovskita oxida", 0, 226.84, 5.45, 200, 3.0, 1.0e-12, 5.60, 2700, 160, 1.50, "perovskita ortorrombica", "#c6c8c2"),
+    ("zirconato_bario", "Zirconato de bario", "BaZrO3", "BaZrO3", "perovskita oxida", 0, 276.55, 6.20, 210, 2.5, 1.0e-12, 5.30, 2600, 170, 1.45, "perovskita cubica", "#c9c4b5"),
+    ("manganita_lantanio", "Manganita de lantanio", "LaMnO3", "LaMnO3", "perovskita oxida", 0, 241.84, 6.50, 140, 3.0, 1.0e2, 1.10, 1500, 160, 1.60, "perovskita ortorrombica", "#5c4b48"),
+    ("niobato_estroncio", "Niobato de estroncio", "SrNbO3", "SrNbO3", "perovskita condutora", 0, 228.53, 5.60, 170, 8.0, 5.0e5, 0.0, 1700, 160, 1.55, "perovskita cubica", "#555e64"),
+    ("tantalato_potassio", "Tantalato de potassio", "KTaO3", "KTaO3", "perovskita paraeletrica", 0, 268.05, 7.00, 190, 4.0, 1.0e-12, 3.60, 1370, 160, 1.55, "perovskita cubica", "#d1cdc1"),
+    ("germaneno", "Germaneno", "Ge", "Ge", "material 2D", 32, 72.630, 5.32, 50, 10, 1.0e3, 0.05, 938, 122, 2.01, "hexagonal 2D", "#7b8585"),
+    ("fosforeno", "Fosforeno", "P", "P", "material 2D", 15, 30.974, 2.69, 44, 12, 1.0e2, 0.30, 590, 98, 2.19, "ortorrombica em camadas", "#2b2630"),
+    ("antimoneno", "Antimoneno", "Sb", "Sb", "material 2D", 51, 121.760, 6.70, 35, 18, 1.0e2, 1.20, 630, 145, 2.05, "buckled hexagonal 2D", "#7f7a8c"),
+    ("borofeno", "Borofeno", "B", "B", "material 2D", 5, 10.81, 2.40, 200, 50, 1.0e6, 0.0, 2076, 87, 2.04, "rede 2D anisotropica", "#6c5369"),
+    ("seleneto_bismuto", "Seleneto de bismuto", "Bi2Se3", "Bi2Se3", "isolante topologico", 0, 654.84, 7.50, 40, 1.5, 1.0e5, 0.30, 710, 160, 2.10, "romboedrica em camadas", "#756b84"),
+    ("antimoneto_indio", "Antimoneto de indio", "InSb", "InSb", "semicondutor III-V", 0, 236.58, 5.78, 50, 18, 1.0e3, 0.17, 525, 150, 2.00, "zinc blende", "#777082"),
+    ("arseneto_indio", "Arseneto de indio", "InAs", "InAs", "semicondutor III-V", 0, 189.74, 5.67, 59, 27, 1.0e3, 0.35, 942, 145, 2.00, "zinc blende", "#756f82"),
+    ("nitreto_galio", "Nitreto de galio", "GaN", "GaN", "semicondutor wide bandgap", 0, 83.73, 6.15, 300, 130, 1.0e-4, 3.40, 2500, 120, 2.20, "wurtzita", "#6f88a5"),
+    ("nitreto_aluminio", "Nitreto de aluminio", "AlN", "AlN", "semicondutor piezoeletrico", 0, 40.99, 3.26, 330, 285, 1.0e-12, 6.20, 2200, 100, 2.10, "wurtzita", "#d5dde4"),
+    ("carbeto_boro", "Carbeto de boro", "B4C", "B4C", "ceramico carbeto", 0, 55.25, 2.52, 450, 30, 1.0e-6, 2.10, 2450, 87, 2.20, "romboedrica", "#33323a"),
+    ("nitreto_silicio", "Nitreto de silicio", "Si3N4", "Si3N4", "ceramico nitreto", 0, 140.28, 3.17, 310, 25, 1.0e-12, 5.00, 1900, 111, 2.20, "hexagonal beta", "#c8ccd0"),
+    ("diboreto_magnesio", "Diboreto de magnesio", "MgB2", "MgB2", "supercondutor", 0, 45.93, 2.63, 180, 60, 1.0e7, 0.0, 830, 120, 1.70, "hexagonal AlB2", "#7d8f99"),
+    ("telureto_antimonio", "Telureto de antimonio", "Sb2Te3", "Sb2Te3", "semicondutor termoeletrico", 0, 626.32, 6.50, 45, 1.6, 1.0e5, 0.28, 620, 160, 2.10, "romboedrica em camadas", "#786b82"),
+    ("skutterudita", "Skutterudita", "CoSb3", "CoSb3", "termoeletrico", 0, 424.21, 7.60, 120, 10, 1.0e5, 0.20, 874, 150, 1.95, "skutterudita cubica", "#55525b"),
+    ("half_heusler", "Half-Heusler NiTiSn", "NiTiSn", "NiTiSn", "termoeletrico half-heusler", 0, 225.27, 6.50, 150, 6.0, 1.0e5, 0.50, 1450, 145, 1.80, "half-Heusler C1b", "#6f7270"),
+    ("tags", "AgSbTe2", "AgSbTe2", "AgSbTe2", "semicondutor termoeletrico", 0, 484.83, 6.90, 45, 0.7, 1.0e5, 0.30, 620, 160, 2.05, "sal-gema distorcida", "#817486"),
+    ("ge_te", "Telureto de germanio", "GeTe", "GeTe", "semicondutor termoeletrico", 0, 200.23, 6.14, 55, 3.0, 1.0e5, 0.20, 725, 145, 2.05, "romboedrica", "#686b72"),
+    ("pzt", "PZT", "Pb(Zr,Ti)O3", "PZT", "ceramico piezoeletrico", 0, 328.50, 7.80, 63, 1.2, 1.0e-10, 3.20, 1280, 170, 1.85, "perovskita tetragonal/romboedrica", "#a9a7a1"),
+    ("quartzo", "Quartzo", "SiO2", "SiO2", "cristal piezoeletrico", 0, 60.08, 2.65, 72, 7.6, 1.0e-16, 8.90, 1713, 111, 1.90, "trigonal", "#e5e2d8"),
+    ("niobato_litio", "Niobato de litio", "LiNbO3", "LiNbO3", "cristal piezoeletrico", 0, 147.85, 4.65, 200, 5.0, 1.0e-12, 3.80, 1257, 145, 1.70, "trigonal", "#c9d0d7"),
+    ("tantalato_litio", "Tantalato de litio", "LiTaO3", "LiTaO3", "cristal piezoeletrico", 0, 235.89, 7.45, 230, 5.0, 1.0e-12, 4.40, 1650, 150, 1.70, "trigonal", "#d1d3d2"),
+    ("supercondutor_ybco", "Supercondutor YBCO", "YBa2Cu3O7", "YBCO", "supercondutor ceramico", 0, 666.19, 6.30, 160, 6.0, 1.0e7, 0.0, 1000, 150, 1.80, "ortorrombica", "#293a55"),
+    ("supercondutor_bscco", "Supercondutor BSCCO", "Bi2Sr2CaCu2O8", "BSCCO", "supercondutor ceramico", 0, 888.35, 6.40, 120, 2.0, 1.0e7, 0.0, 860, 160, 1.85, "tetragonal em camadas", "#4d4464"),
+    ("supercondutor_nbti", "Supercondutor NbTi", "NbTi", "NbTi", "supercondutor metalico", 0, 140.77, 6.50, 80, 22, 6.0e6, 0.0, 1700, 145, 1.60, "bcc", "#7f8a8f"),
+    ("supercondutor_nb3sn", "Supercondutor Nb3Sn", "Nb3Sn", "Nb3Sn", "supercondutor intermetalico", 0, 397.43, 8.40, 130, 20, 5.0e6, 0.0, 2130, 145, 1.70, "A15 cubica", "#6d767d"),
+    ("zirconia", "Zirconia", "ZrO2", "ZrO2", "ceramico oxido", 0, 123.22, 5.68, 200, 2.0, 1.0e-12, 5.00, 2715, 160, 1.60, "monoclinica/tetragonal", "#d7d8d4"),
+    ("hafnia", "Hafnia", "HfO2", "HfO2", "oxido ferroeletrico", 0, 210.49, 9.68, 220, 1.5, 1.0e-12, 5.80, 2758, 155, 1.55, "monoclinica", "#c9ccc7"),
+    ("ceria", "Ceria", "CeO2", "CeO2", "oxido catalitico", 0, 172.11, 7.22, 230, 12, 1.0e-8, 3.20, 2400, 185, 1.12, "fluorita cubica", "#e2d48b"),
+    ("perovskita_knt", "Perovskita KNN", "K0.5Na0.5NbO3", "KNN", "perovskita piezoeletrica sem chumbo", 0, 164.40, 4.50, 120, 3.0, 1.0e-12, 3.20, 1050, 155, 1.55, "perovskita ortorrombica", "#c9c4b7"),
+    ("ndfeb", "Ima NdFeB", "Nd2Fe14B", "NdFeB", "ima de terra rara", 0, 1081.10, 7.50, 160, 8.0, 6.0e5, 0.0, 1180, 160, 1.45, "tetragonal", "#7b6fa6"),
+    ("alnico", "Alnico", "Al-Ni-Co-Fe", "AlNiCo", "ima permanente", 0, 0, 7.30, 150, 12.0, 2.0e6, 0.0, 1450, 130, 1.80, "bcc/fcc intermetalica", "#8c8270"),
+    ("mu_metal", "Mu-metal", "Ni-Fe-Mo", "Mu-metal", "liga magnetica mole", 0, 0, 8.70, 200, 20.0, 1.7e6, 0.0, 1450, 125, 1.90, "fcc", "#767b80"),
+    ("kevlar", "Kevlar", "(C14H10N2O2)n", "Kevlar", "polimero aramida", 0, 0, 1.44, 70, 0.04, 1.0e-14, 5.0, 500, 85, 2.60, "semicristalina fibrilar", "#d9c169"),
+    ("nylon", "Nylon", "(C6H11NO)n", "Nylon", "polimero poliamida", 0, 0, 1.14, 2.8, 0.25, 1.0e-14, 5.0, 260, 85, 2.60, "semicristalina", "#d8d5c8"),
+    ("policarbonato", "Policarbonato", "(C16H14O3)n", "PC", "polimero", 0, 0, 1.20, 2.4, 0.20, 1.0e-14, 5.0, 155, 85, 2.60, "amorfa", "#dce7eb"),
+    ("polietileno", "Polietileno", "(C2H4)n", "PE", "polimero", 0, 0, 0.95, 1.0, 0.42, 1.0e-15, 5.0, 130, 85, 2.60, "semicristalina", "#e8edf0"),
+    ("polipropileno", "Polipropileno", "(C3H6)n", "PP", "polimero", 0, 0, 0.90, 1.5, 0.22, 1.0e-15, 5.0, 170, 85, 2.60, "semicristalina", "#e4e6e2"),
+    ("aerogel_silica", "Aerogel de silica", "SiO2", "SiO2 aerogel", "nanoporoso", 0, 60.08, 0.10, 0.05, 0.015, 1.0e-14, 8.90, 1200, 111, 1.90, "amorfa nanoporosa", "#eef5f6"),
+    ("nanotubo_carbono", "Nanotubo de carbono", "C", "CNT", "nanomaterial", 6, 12.011, 1.40, 1000, 3000, 1.0e7, 0.0, 3650, 70, 2.55, "tubular grafitica", "#1f2224"),
+    ("fulereno_c60", "Fulereno C60", "C60", "C60", "nanomaterial", 0, 720.66, 1.65, 20, 0.4, 1.0e-8, 1.70, 600, 70, 2.55, "molecular fcc", "#3b3940"),
+    ("li_coo2", "Oxido de litio cobalto", "LiCoO2", "LiCoO2", "catodo de bateria", 0, 97.87, 5.05, 150, 5.0, 1.0e-4, 2.70, 1130, 120, 1.80, "lamelar R-3m", "#566382"),
+    ("lifepo4", "Fosfato de ferro litio", "LiFePO4", "LiFePO4", "catodo de bateria", 0, 157.76, 3.60, 125, 4.0, 1.0e-9, 3.70, 975, 120, 1.70, "olivina ortorrombica", "#566f52"),
+    ("nmc811", "Catodo NMC811", "LiNi0.8Mn0.1Co0.1O2", "NMC811", "catodo de bateria", 0, 97.30, 4.80, 140, 4.0, 1.0e-4, 2.80, 900, 125, 1.80, "lamelar R-3m", "#5f6170"),
+    ("grafite_bateria", "Grafite de bateria", "C", "C", "anodo de bateria", 6, 12.011, 2.20, 10, 150, 1.0e5, 0.0, 3650, 70, 2.55, "hexagonal em camadas", "#34383d"),
+    ("mxene_ti3c2", "MXene Ti3C2", "Ti3C2", "Ti3C2", "material 2D condutor", 0, 167.77, 4.00, 330, 50, 1.0e6, 0.0, 1800, 125, 1.80, "MXene lamelar", "#3f4a4c"),
+    ("dissulfeto_estanho", "Dissulfeto de estanho", "SnS2", "SnS2", "semicondutor em camadas", 0, 182.84, 4.50, 35, 1.0, 1.0e-4, 2.20, 880, 145, 2.20, "CdI2 hexagonal em camadas", "#d2a64d"),
+    ("sulfeto_estanho", "Sulfeto de estanho", "SnS", "SnS", "semicondutor em camadas", 0, 150.78, 5.22, 37, 1.5, 1.0e-3, 1.30, 882, 145, 2.20, "ortorrombica em camadas", "#6f6560"),
+    ("seleneto_bismuto_antimonio", "Seleneto de bismuto antimonio", "BiSbSe", "BiSbSe", "termoeletrico", 0, 408.70, 6.80, 45, 1.2, 1.0e5, 0.25, 720, 160, 2.10, "romboedrica em camadas", "#746c78"),
+    ("oxido_indio_estanho", "Oxido de indio estanho", "In2O3:Sn", "ITO", "oxido condutor transparente", 0, 277.64, 7.10, 110, 10, 1.0e5, 3.50, 1900, 145, 1.90, "bixbyita cubica", "#c5d6e0"),
+    ("fluoreto_estanho", "Fluoreto de estanho", "SnF2", "SnF2", "composto ionico", 0, 156.71, 4.57, 30, 0.7, 1.0e-10, 4.00, 213, 140, 2.40, "monoclinica", "#d7d9d5"),
+    ("oxido_cobre", "Oxido de cobre", "CuO", "CuO", "semicondutor oxido", 0, 79.55, 6.31, 120, 20, 1.0e-2, 1.20, 1326, 128, 2.00, "monoclinica", "#3a2c25"),
+    ("oxido_cobre_i", "Oxido cuproso", "Cu2O", "Cu2O", "semicondutor oxido", 0, 143.09, 6.00, 110, 6.0, 1.0e-2, 2.10, 1235, 128, 1.95, "cuprita cubica", "#8c3f2c"),
+    ("nitreto_lantanio", "Nitreto de lantanio", "LaN", "LaN", "nitreto de terra rara", 0, 152.91, 6.10, 150, 12.0, 1.0e4, 0.20, 2500, 170, 1.30, "sal-gema fcc", "#8fa09a"),
+    ("nitreto_cerio", "Nitreto de cerio", "CeN", "CeN", "nitreto de terra rara", 0, 154.12, 6.90, 150, 10.0, 1.0e4, 0.10, 2500, 170, 1.30, "sal-gema fcc", "#8f9872"),
+    ("nitreto_neodimio", "Nitreto de neodimio", "NdN", "NdN", "nitreto de terra rara", 0, 158.25, 7.10, 145, 9.0, 1.0e3, 0.20, 2400, 165, 1.30, "sal-gema fcc", "#8b86a6"),
+    ("nitreto_gadolinio", "Nitreto de gadolinio", "GdN", "GdN", "semicondutor magnetico terra rara", 0, 171.26, 7.40, 150, 8.0, 1.0e3, 0.80, 2200, 160, 1.25, "sal-gema fcc", "#707f73"),
+    ("boreto_lantanio", "Hexaboreto de lantanio", "LaB6", "LaB6", "ceramico condutor terra rara", 0, 203.77, 4.72, 190, 47.0, 1.0e6, 0.0, 2210, 150, 1.45, "cubica CsCl", "#6b5568"),
+    ("boreto_cerio", "Hexaboreto de cerio", "CeB6", "CeB6", "boreto de terra rara", 0, 204.99, 4.80, 185, 35.0, 5.0e5, 0.0, 2550, 150, 1.45, "cubica CsCl", "#6f5f55"),
+    ("boreto_samario", "Hexaboreto de samario", "SmB6", "SmB6", "isolante Kondo terra rara", 0, 215.23, 5.00, 180, 12.0, 1.0e2, 0.02, 2580, 150, 1.45, "cubica CsCl", "#675a72"),
+    ("silicato_itrio", "Silicato de itrio", "Y2SiO5", "YSO", "cristal optico terra rara", 0, 285.90, 4.45, 140, 4.0, 1.0e-12, 6.00, 1980, 150, 1.55, "monoclinica", "#d6dfd9"),
+    ("vanadato_itrio", "Vanadato de itrio", "YVO4", "YVO4", "cristal optico terra rara", 0, 203.85, 4.22, 135, 5.0, 1.0e-12, 3.80, 1810, 150, 1.60, "zircon tetragonal", "#d5decf"),
+    ("fosfato_lantanio", "Fosfato de lantanio", "LaPO4", "LaPO4", "fosfato de terra rara", 0, 233.88, 5.10, 120, 3.0, 1.0e-12, 5.50, 2070, 160, 1.50, "monazita monoclinica", "#d6d0b7"),
+    ("fluoreto_lantanio", "Fluoreto de lantanio", "LaF3", "LaF3", "fluoreto optico terra rara", 0, 195.90, 5.94, 110, 5.0, 1.0e-12, 9.00, 1493, 160, 1.55, "tysonita hexagonal", "#d8ddd1"),
+    ("fluoreto_litio_itrio", "Fluoreto de litio itrio", "LiYF4", "YLF", "cristal laser terra rara", 0, 171.84, 3.99, 100, 6.0, 1.0e-12, 10.00, 825, 145, 1.60, "scheelita tetragonal", "#d7e6e0"),
+    ("oxissulfeto_gadolinio", "Oxissulfeto de gadolinio", "Gd2O2S", "GOS", "cintilador terra rara", 0, 362.56, 7.34, 145, 7.0, 1.0e-12, 4.60, 1990, 160, 1.50, "hexagonal", "#d6d9c5"),
+    ("yag", "Granada de aluminio e itrio", "Y3Al5O12", "YAG", "granada optica terra rara", 0, 593.62, 4.55, 280, 10.0, 1.0e-12, 6.40, 1940, 150, 1.65, "granada cubica", "#d6d7c6"),
+    ("lag", "Granada de aluminio e lutecio", "Lu3Al5O12", "LuAG", "granada optica terra rara", 0, 850.70, 6.73, 285, 9.0, 1.0e-12, 6.20, 2020, 150, 1.65, "granada cubica", "#cfd6cf"),
+    ("ortoferrita_itrio", "Ortoferrita de itrio", "YFeO3", "YFeO3", "ortoferrita magnetica terra rara", 0, 192.75, 5.35, 170, 4.0, 1.0e-6, 2.10, 1520, 150, 1.75, "perovskita ortorrombica", "#6f7568"),
+    ("ortoferrita_lantanio", "Ortoferrita de lantanio", "LaFeO3", "LaFeO3", "ortoferrita magnetica terra rara", 0, 242.75, 6.60, 165, 4.0, 1.0e-5, 2.10, 1850, 160, 1.70, "perovskita ortorrombica", "#7b6d62"),
+    ("ortoferrita_neodimio", "Ortoferrita de neodimio", "NdFeO3", "NdFeO3", "ortoferrita magnetica terra rara", 0, 248.08, 6.90, 165, 4.0, 1.0e-5, 2.00, 1780, 160, 1.70, "perovskita ortorrombica", "#776a78"),
+    ("manganita_praseodimio_calcio", "Manganita de praseodimio calcio", "Pr0.7Ca0.3MnO3", "PCMO", "perovskita magnetorresistiva terra rara", 0, 217.50, 6.20, 140, 3.0, 1.0e2, 0.20, 1400, 160, 1.60, "perovskita ortorrombica", "#5f4f4b"),
+    ("cobaltita_samario", "Cobaltita de samario", "SmCoO3", "SmCoO3", "perovskita cobaltita terra rara", 0, 257.29, 7.20, 150, 4.0, 1.0e1, 0.40, 1400, 160, 1.65, "perovskita ortorrombica", "#665760"),
+    ("niquelato_neodimio", "Niquelato de neodimio", "NdNiO3", "NdNiO3", "perovskita niquelato terra rara", 0, 250.94, 7.20, 160, 5.0, 1.0e4, 0.05, 1300, 160, 1.65, "perovskita ortorrombica", "#545b63"),
+    ("galato_neodimio", "Galato de neodimio", "NdGaO3", "NdGaO3", "substrato perovskita terra rara", 0, 261.96, 7.57, 180, 6.0, 1.0e-12, 4.20, 1600, 160, 1.60, "perovskita ortorrombica", "#c9c2c8"),
+    ("escandato_disprosio", "Escandato de disprosio", "DyScO3", "DyScO3", "substrato perovskita terra rara", 0, 255.46, 6.90, 185, 6.0, 1.0e-12, 5.00, 2100, 160, 1.55, "perovskita ortorrombica", "#b8c2bb"),
+    ("zirconato_gadolinio", "Zirconato de gadolinio", "Gd2Zr2O7", "Gd2Zr2O7", "pirocloro terra rara", 0, 608.95, 7.20, 210, 2.0, 1.0e-12, 4.80, 2350, 160, 1.50, "pirocloro cubica", "#c8c9be"),
+    ("zirconato_lantanio", "Zirconato de lantanio", "La2Zr2O7", "La2Zr2O7", "pirocloro terra rara", 0, 572.26, 6.00, 200, 1.8, 1.0e-12, 4.70, 2300, 165, 1.50, "pirocloro cubica", "#d0cabc"),
+    ("titanato_neodimio", "Titanato de neodimio", "Nd2Ti2O7", "Nd2Ti2O7", "titanato terra rara", 0, 511.22, 6.40, 180, 3.0, 1.0e-12, 3.80, 1650, 160, 1.55, "perovskita lamelar", "#b9aebe"),
+    ("molibdato_gadolinio", "Molibdato de gadolinio", "Gd2(MoO4)3", "GMO", "ferroelastico terra rara", 0, 794.32, 5.70, 120, 2.0, 1.0e-12, 3.50, 1150, 160, 1.55, "ortorrombica", "#c4c6ba"),
+    ("tungstato_itrio", "Tungstato de itrio", "Y2(WO4)3", "YWO", "tungstato de terra rara", 0, 729.32, 5.90, 130, 2.5, 1.0e-12, 4.00, 1200, 150, 1.55, "monoclinica", "#c7c8bc"),
+    ("vanadato_lutecio", "Vanadato de lutecio", "LuVO4", "LuVO4", "cristal optico terra rara", 0, 289.91, 6.70, 150, 5.0, 1.0e-12, 3.90, 1800, 150, 1.60, "zircon tetragonal", "#c9d0c6"),
+    ("fosfato_cerio", "Fosfato de cerio", "CePO4", "CePO4", "fosfato de terra rara", 0, 235.09, 5.20, 120, 3.0, 1.0e-12, 5.40, 2050, 160, 1.50, "monazita monoclinica", "#d7c783"),
+    ("sulfeto_europio", "Sulfeto de europio", "EuS", "EuS", "semicondutor magnetico terra rara", 0, 184.02, 5.80, 80, 5.0, 1.0e-5, 1.60, 2000, 160, 1.65, "sal-gema fcc", "#3d3f31"),
+    ("seleneto_europio", "Seleneto de europio", "EuSe", "EuSe", "semicondutor magnetico terra rara", 0, 230.92, 6.40, 75, 4.0, 1.0e-5, 1.80, 1700, 160, 1.70, "sal-gema fcc", "#46423b"),
 ]
 
 
@@ -577,6 +678,294 @@ def add_advanced_ready_materials() -> None:
 
 
 add_advanced_ready_materials()
+
+
+MATERIAL_SEARCH_TERMS_ITEMS = [
+    ("cobre", "copper Cu"),
+    ("silicio", "silicon Si"),
+    ("vidro", "soda lime glass silicate"),
+    ("grafite", "graphite carbon C"),
+    ("aco", "carbon steel Fe C"),
+    ("hidrogenio", "hydrogen H"),
+    ("carbono", "carbon graphite C"),
+    ("grafeno", "graphene carbon nanomaterial C"),
+    ("magnesio", "magnesium Mg"),
+    ("titanio", "titanium Ti"),
+    ("vanadio", "vanadium V"),
+    ("cromo", "chromium Cr"),
+    ("manganes", "manganese Mn"),
+    ("ferro", "iron Fe"),
+    ("cobalto", "cobalt Co"),
+    ("niquel", "nickel Ni"),
+    ("zinco", "zinc Zn"),
+    ("galio", "gallium Ga"),
+    ("germanio", "germanium Ge"),
+    ("prata", "silver Ag"),
+    ("estanho", "tin Sn"),
+    ("tungstenio", "tungsten W"),
+    ("ouro", "gold Au"),
+    ("mercurio", "mercury Hg"),
+    ("chumbo", "lead Pb"),
+    ("fosforo_negro", "black phosphorus phosphorene P"),
+    ("bismuto", "bismuth Bi"),
+    ("tecnecio", "technetium Tc"),
+    ("telureto_bismuto", "bismuth telluride Bi2Te3 thermoelectric"),
+    ("telureto_chumbo", "lead telluride PbTe thermoelectric semiconductor"),
+    ("telureto_cadmio", "cadmium telluride CdTe photovoltaic semiconductor"),
+    ("telureto_estanho", "tin telluride SnTe topological crystalline insulator"),
+    ("seleneto_estanho", "tin selenide SnSe orthorhombic thermoelectric"),
+    ("selenato_estanho", "tin selenate SnSeO4 inorganic salt crystal"),
+    ("seleneto_estanho_2", "tin diselenide SnSe2 layered semiconductor"),
+    ("sulfeto_molibdenio", "molybdenum disulfide MoS2 layered semiconductor"),
+    ("sulfeto_tungstenio", "tungsten disulfide WS2 layered semiconductor"),
+    ("nitreto_boro", "hexagonal boron nitride h-BN 2D ceramic"),
+    ("oxido_estanho", "tin oxide SnO2 transparent conducting oxide"),
+    ("oxido_zinco", "zinc oxide ZnO wurtzite semiconductor"),
+    ("dioxido_titanio", "titanium dioxide TiO2 rutile anatase photocatalyst"),
+    ("arseneto_galio", "gallium arsenide GaAs III-V semiconductor"),
+    ("fosfeto_indio", "indium phosphide InP III-V semiconductor"),
+    ("latao", "brass Cu Zn alloy"),
+    ("bronze", "bronze Cu Sn alloy"),
+    ("aco_inoxidavel_304", "304 stainless steel Fe Cr Ni alloy"),
+    ("inconel_718", "Inconel 718 nickel superalloy"),
+    ("solda_sn_pb", "SnPb solder eutectic tin lead alloy"),
+    ("abs", "ABS polymer acrylonitrile butadiene styrene"),
+    ("pla", "PLA polylactic acid polymer"),
+    ("pet", "PET polyethylene terephthalate polymer"),
+    ("peek", "PEEK polyether ether ketone polymer"),
+    ("ptfe", "PTFE Teflon fluoropolymer"),
+    ("poliimida", "polyimide high temperature polymer"),
+    ("titanato_estroncio", "strontium titanate SrTiO3 perovskite oxide"),
+    ("titanato_bario", "barium titanate BaTiO3 ferroelectric perovskite"),
+    ("titanato_chumbo", "lead titanate PbTiO3 ferroelectric perovskite"),
+    ("titanato_calcio", "calcium titanate CaTiO3 perovskite"),
+    ("aluminato_lantanio", "lanthanum aluminate LaAlO3 perovskite oxide"),
+    ("manganita_lantanio_estroncio", "La0.7Sr0.3MnO3 LSMO colossal magnetoresistance perovskite"),
+    ("mapbi3", "MAPbI3 methylammonium lead iodide perovskite solar cell"),
+    ("fapbi3", "FAPbI3 formamidinium lead iodide perovskite solar cell"),
+    ("cspbi3", "CsPbI3 inorganic halide perovskite"),
+    ("cspbbr3", "CsPbBr3 inorganic halide perovskite"),
+    ("magnetita", "magnetite Fe3O4 inverse spinel ferrite magnetic"),
+    ("maghemita", "maghemite gamma Fe2O3 magnetic ferrite"),
+    ("ferrita_niquel", "nickel ferrite NiFe2O4 spinel magnetic"),
+    ("ferrita_cobalto", "cobalt ferrite CoFe2O4 hard magnetic spinel"),
+    ("ferrita_manganes", "manganese ferrite MnFe2O4 spinel magnetic"),
+    ("ferrita_zinco", "zinc ferrite ZnFe2O4 spinel magnetic"),
+    ("ferrita_mnzn", "MnZn ferrite soft magnetic core"),
+    ("ferrita_nizn", "NiZn ferrite soft magnetic high frequency"),
+    ("hexaferrita_bario", "barium hexaferrite BaFe12O19 permanent magnet"),
+    ("hexaferrita_estroncio", "strontium hexaferrite SrFe12O19 permanent magnet"),
+    ("granada_ferro_itrio", "yttrium iron garnet YIG Y3Fe5O12 ferrimagnetic"),
+    ("granada_ferro_gadolinio", "gadolinium iron garnet GdIG Gd3Fe5O12 ferrimagnetic"),
+    ("smco17", "Sm2Co17 samarium cobalt rare earth permanent magnet"),
+    ("terfenol_d", "Terfenol-D TbDyFe magnetostrictive rare earth alloy"),
+    ("galfenol", "Galfenol FeGa magnetostrictive alloy"),
+    ("permalloy", "permalloy NiFe soft magnetic alloy"),
+    ("yag_cerio", "YAG Ce yttrium aluminum garnet phosphor"),
+    ("fosforo_europio_itrio", "Y2O3 Eu rare earth red phosphor"),
+    ("aluminato_estroncio_europio", "SrAl2O4 Eu Dy persistent phosphor"),
+    ("alumina", "alumina aluminum oxide Al2O3"),
+    ("carbeto_silicio", "silicon carbide SiC"),
+    ("diamante", "diamond carbon C"),
+    ("siliceno", "silicene 2D silicon"),
+    ("cspbcl3", "CsPbCl3 inorganic halide perovskite"),
+    ("mapbbr3", "MAPbBr3 methylammonium lead bromide perovskite"),
+    ("mapbcl3", "MAPbCl3 methylammonium lead chloride perovskite"),
+    ("fapbbr3", "FAPbBr3 formamidinium lead bromide perovskite"),
+    ("bismutato_sodio_bario", "BaNaBiO3 perovskite oxide"),
+    ("niobato_potassio_sodio", "KNN potassium sodium niobate perovskite"),
+    ("zirconato_titanato_chumbo", "PZT PbZrTiO3 piezoelectric perovskite"),
+    ("niquelato_lantanio", "LaNiO3 metallic perovskite"),
+    ("cobaltita_lantanio", "LaCoO3 perovskite oxide"),
+    ("ferrita_bismuto", "BiFeO3 multiferroic perovskite"),
+    ("zirconato_estroncio", "SrZrO3 perovskite oxide"),
+    ("zirconato_bario", "BaZrO3 perovskite oxide"),
+    ("manganita_lantanio", "LaMnO3 perovskite oxide"),
+    ("niobato_estroncio", "SrNbO3 conductive perovskite"),
+    ("tantalato_potassio", "KTaO3 quantum paraelectric perovskite"),
+    ("helio", "helium He"),
+    ("litio", "lithium Li"),
+    ("berilio", "beryllium Be"),
+    ("boro", "boron B"),
+    ("nitrogenio", "nitrogen N"),
+    ("oxigenio", "oxygen O"),
+    ("fluor", "fluorine F"),
+    ("neonio", "neon Ne"),
+    ("sodio", "sodium Na"),
+    ("aluminio", "aluminum aluminium Al"),
+    ("fosforo", "phosphorus P"),
+    ("enxofre", "sulfur S"),
+    ("cloro", "chlorine Cl"),
+    ("argonio", "argon Ar"),
+    ("potassio", "potassium K"),
+    ("calcio", "calcium Ca"),
+    ("escandio", "scandium Sc"),
+    ("arsenio", "arsenic As"),
+    ("selenio", "selenium Se"),
+    ("bromo", "bromine Br"),
+    ("criptonio", "krypton Kr"),
+    ("rubidio", "rubidium Rb"),
+    ("estroncio", "strontium Sr"),
+    ("itrio", "yttrium Y"),
+    ("zirconio", "zirconium Zr"),
+    ("niobio", "niobium Nb"),
+    ("molibdenio", "molybdenum Mo"),
+    ("rutenio", "ruthenium Ru"),
+    ("rodio", "rhodium Rh"),
+    ("paladio", "palladium Pd"),
+    ("cadmio", "cadmium Cd"),
+    ("indio", "indium In"),
+    ("antimonio", "antimony Sb"),
+    ("telurio", "tellurium Te"),
+    ("iodo", "iodine I"),
+    ("xenonio", "xenon Xe"),
+    ("cesio", "cesium Cs"),
+    ("bario", "barium Ba"),
+    ("lantanio", "lanthanum La"),
+    ("cerio", "cerium Ce"),
+    ("praseodimio", "praseodymium Pr"),
+    ("neodimio", "neodymium Nd"),
+    ("promecio", "promethium Pm"),
+    ("samario", "samarium Sm"),
+    ("europio", "europium Eu"),
+    ("gadolinio", "gadolinium Gd"),
+    ("terbio", "terbium Tb"),
+    ("disprosio", "dysprosium Dy"),
+    ("holmio", "holmium Ho"),
+    ("erbio", "erbium Er"),
+    ("tulio", "thulium Tm"),
+    ("iterbio", "ytterbium Yb"),
+    ("lutecio", "lutetium Lu"),
+    ("hafnio", "hafnium Hf"),
+    ("tantalo", "tantalum Ta"),
+    ("renio", "rhenium Re"),
+    ("osmio", "osmium Os"),
+    ("iridio", "iridium Ir"),
+    ("platina", "platinum Pt"),
+    ("talio", "thallium Tl"),
+    ("polonio", "polonium Po"),
+    ("astato", "astatine At"),
+    ("radonio", "radon Rn"),
+    ("francio", "francium Fr"),
+    ("radio", "radium Ra"),
+    ("actinio", "actinium Ac"),
+    ("torio", "thorium Th"),
+    ("protactinio", "protactinium Pa"),
+    ("uranio", "uranium U"),
+    ("netunio", "neptunium Np"),
+    ("plutonio", "plutonium Pu"),
+    ("americio", "americium Am"),
+    ("curio", "curium Cm"),
+    ("berquelio", "berkelium Bk"),
+    ("californio", "californium Cf"),
+    ("einstenio", "einsteinium Es"),
+    ("fermio", "fermium Fm"),
+    ("mendelevio", "mendelevium Md"),
+    ("nobelio", "nobelium No"),
+    ("laurencio", "lawrencium Lr"),
+    ("rutherfordio", "rutherfordium Rf"),
+    ("dubnio", "dubnium Db"),
+    ("seaborgio", "seaborgium Sg"),
+    ("bohrio", "bohrium Bh"),
+    ("hassio", "hassium Hs"),
+    ("meitnerio", "meitnerium Mt"),
+    ("darmstadtio", "darmstadtium Ds"),
+    ("roentgenio", "roentgenium Rg"),
+    ("copernicio", "copernicium Cn"),
+    ("nihonio", "nihonium Nh"),
+    ("flerovio", "flerovium Fl"),
+    ("moscovio", "moscovium Mc"),
+    ("livermorio", "livermorium Lv"),
+    ("tennessino", "tennessine Ts"),
+    ("oganessonio", "oganesson Og"),
+    ("germaneno", "germanene 2D germanium"),
+    ("fosforeno", "phosphorene black phosphorus 2D"),
+    ("antimoneno", "antimonene Sb 2D material"),
+    ("borofeno", "borophene B 2D material"),
+    ("seleneto_bismuto", "bismuth selenide Bi2Se3 topological insulator"),
+    ("antimoneto_indio", "indium antimonide InSb semiconductor"),
+    ("arseneto_indio", "indium arsenide InAs semiconductor"),
+    ("nitreto_galio", "gallium nitride GaN wide bandgap semiconductor"),
+    ("nitreto_aluminio", "aluminum nitride AlN piezoelectric semiconductor"),
+    ("carbeto_boro", "boron carbide B4C ceramic"),
+    ("nitreto_silicio", "silicon nitride Si3N4 ceramic"),
+    ("diboreto_magnesio", "magnesium diboride MgB2 superconductor"),
+    ("telureto_antimonio", "antimony telluride Sb2Te3 thermoelectric"),
+    ("skutterudita", "CoSb3 skutterudite thermoelectric"),
+    ("half_heusler", "half Heusler thermoelectric alloy"),
+    ("tags", "AgSbTe2 thermoelectric semiconductor"),
+    ("ge_te", "germanium telluride GeTe thermoelectric"),
+    ("pzt", "lead zirconate titanate PZT piezoelectric ceramic"),
+    ("quartzo", "quartz SiO2 piezoelectric crystal"),
+    ("niobato_litio", "lithium niobate LiNbO3 piezoelectric crystal"),
+    ("tantalato_litio", "lithium tantalate LiTaO3 piezoelectric crystal"),
+    ("supercondutor_ybco", "YBa2Cu3O7 YBCO high temperature superconductor"),
+    ("supercondutor_bscco", "Bi2Sr2CaCu2O8 BSCCO superconductor"),
+    ("supercondutor_nbti", "NbTi superconducting alloy"),
+    ("supercondutor_nb3sn", "Nb3Sn superconducting intermetallic"),
+    ("zirconia", "zirconium dioxide ZrO2 ceramic"),
+    ("hafnia", "hafnium dioxide HfO2 ferroelectric oxide"),
+    ("ceria", "cerium dioxide CeO2 catalyst oxide"),
+    ("perovskita_knt", "KNN potassium sodium niobate lead free piezoelectric"),
+    ("ndfeb", "Nd2Fe14B neodymium iron boron permanent magnet"),
+    ("alnico", "AlNiCo permanent magnet alloy"),
+    ("mu_metal", "mu metal nickel iron magnetic alloy"),
+    ("kevlar", "Kevlar aramid fiber polymer"),
+    ("nylon", "nylon polyamide polymer"),
+    ("policarbonato", "polycarbonate PC polymer"),
+    ("polietileno", "polyethylene PE polymer"),
+    ("polipropileno", "polypropylene PP polymer"),
+    ("aerogel_silica", "silica aerogel nanoporous material"),
+    ("nanotubo_carbono", "carbon nanotube CNT nanomaterial"),
+    ("fulereno_c60", "fullerene C60 carbon nanomaterial"),
+    ("li_coo2", "lithium cobalt oxide LiCoO2 battery cathode"),
+    ("lifepo4", "lithium iron phosphate LiFePO4 battery cathode"),
+    ("nmc811", "LiNiMnCoO2 NMC811 battery cathode"),
+    ("grafite_bateria", "graphite lithium ion battery anode"),
+    ("mxene_ti3c2", "Ti3C2 MXene 2D conductive material"),
+    ("dissulfeto_estanho", "tin disulfide SnS2 layered semiconductor"),
+    ("sulfeto_estanho", "tin sulfide SnS semiconductor"),
+    ("seleneto_bismuto_antimonio", "BiSbSe thermoelectric alloy"),
+    ("oxido_indio_estanho", "ITO indium tin oxide transparent conductor"),
+    ("fluoreto_estanho", "tin fluoride SnF2 ionic compound"),
+    ("oxido_cobre", "copper oxide CuO semiconductor"),
+    ("oxido_cobre_i", "cuprous oxide Cu2O semiconductor"),
+    ("nitreto_lantanio", "lanthanum nitride LaN rare earth nitride"),
+    ("nitreto_cerio", "cerium nitride CeN rare earth nitride"),
+    ("nitreto_neodimio", "neodymium nitride NdN rare earth nitride"),
+    ("nitreto_gadolinio", "gadolinium nitride GdN magnetic semiconductor"),
+    ("boreto_lantanio", "lanthanum hexaboride LaB6 thermionic cathode"),
+    ("boreto_cerio", "cerium hexaboride CeB6 rare earth boride"),
+    ("boreto_samario", "samarium hexaboride SmB6 Kondo insulator"),
+    ("silicato_itrio", "yttrium silicate Y2SiO5 optical crystal"),
+    ("vanadato_itrio", "yttrium orthovanadate YVO4 optical crystal"),
+    ("fosfato_lantanio", "lanthanum phosphate LaPO4 monazite ceramic"),
+    ("fluoreto_lantanio", "lanthanum fluoride LaF3 optical fluoride"),
+    ("fluoreto_litio_itrio", "lithium yttrium fluoride LiYF4 YLF laser crystal"),
+    ("oxissulfeto_gadolinio", "gadolinium oxysulfide Gd2O2S scintillator"),
+    ("yag", "yttrium aluminum garnet Y3Al5O12 YAG"),
+    ("lag", "lutetium aluminum garnet Lu3Al5O12 LuAG"),
+    ("ortoferrita_itrio", "yttrium orthoferrite YFeO3 magnetic perovskite"),
+    ("ortoferrita_lantanio", "lanthanum orthoferrite LaFeO3 magnetic perovskite"),
+    ("ortoferrita_neodimio", "neodymium orthoferrite NdFeO3 magnetic perovskite"),
+    ("manganita_praseodimio_calcio", "Pr0.7Ca0.3MnO3 PCMO magnetoresistive perovskite"),
+    ("cobaltita_samario", "samarium cobaltite SmCoO3 perovskite oxide"),
+    ("niquelato_neodimio", "neodymium nickelate NdNiO3 correlated perovskite"),
+    ("galato_neodimio", "neodymium gallate NdGaO3 perovskite substrate"),
+    ("escandato_disprosio", "dysprosium scandate DyScO3 perovskite substrate"),
+    ("zirconato_gadolinio", "gadolinium zirconate Gd2Zr2O7 pyrochlore"),
+    ("zirconato_lantanio", "lanthanum zirconate La2Zr2O7 pyrochlore"),
+    ("titanato_neodimio", "neodymium titanate Nd2Ti2O7 layered perovskite"),
+    ("molibdato_gadolinio", "gadolinium molybdate Gd2(MoO4)3 ferroelastic"),
+    ("tungstato_itrio", "yttrium tungstate Y2(WO4)3 rare earth tungstate"),
+    ("vanadato_lutecio", "lutetium orthovanadate LuVO4 optical crystal"),
+    ("fosfato_cerio", "cerium phosphate CePO4 monazite ceramic"),
+    ("sulfeto_europio", "europium sulfide EuS magnetic semiconductor"),
+    ("seleneto_europio", "europium selenide EuSe magnetic semiconductor"),
+]
+
+MATERIAL_SEARCH_TERMS = dict(MATERIAL_SEARCH_TERMS_ITEMS)
+MATERIAL_DISPLAY_ORDER = tuple(dict.fromkeys(key for key, _terms in MATERIAL_SEARCH_TERMS_ITEMS))
 
 
 PERIODIC_SYMBOL_ALIASES = {
@@ -692,6 +1081,138 @@ MATERIAL_ALIASES = {
     "sral2o4": "aluminato_estroncio_europio",
 }
 
+MATERIAL_ALIASES.update(
+    {
+        "diamond": "diamante",
+        "silicene": "siliceno",
+        "cspbcl3": "cspbcl3",
+        "mapbbr3": "mapbbr3",
+        "mapbcl3": "mapbcl3",
+        "fapbbr3": "fapbbr3",
+        "banabio3": "bismutato_sodio_bario",
+        "bismutato de sodio e bario": "bismutato_sodio_bario",
+        "knn": "niobato_potassio_sodio",
+        "k0.5na0.5nbo3": "niobato_potassio_sodio",
+        "niobato de potassio sodio": "niobato_potassio_sodio",
+        "pbzrtio3": "zirconato_titanato_chumbo",
+        "pb(zr,ti)o3": "zirconato_titanato_chumbo",
+        "zirconato titanato de chumbo": "zirconato_titanato_chumbo",
+        "lanio3": "niquelato_lantanio",
+        "niquelato de lantanio": "niquelato_lantanio",
+        "lacoo3": "cobaltita_lantanio",
+        "cobaltita de lantanio": "cobaltita_lantanio",
+        "bifeo3": "ferrita_bismuto",
+        "ferrita de bismuto": "ferrita_bismuto",
+        "srzro3": "zirconato_estroncio",
+        "bazro3": "zirconato_bario",
+        "lamno3": "manganita_lantanio",
+        "srnbo3": "niobato_estroncio",
+        "ktao3": "tantalato_potassio",
+        "germanene": "germaneno",
+        "phosphorene": "fosforeno",
+        "antimonene": "antimoneno",
+        "borophene": "borofeno",
+        "bi2se3": "seleneto_bismuto",
+        "bismuth selenide": "seleneto_bismuto",
+        "insb": "antimoneto_indio",
+        "inas": "arseneto_indio",
+        "gan": "nitreto_galio",
+        "aln": "nitreto_aluminio",
+        "b4c": "carbeto_boro",
+        "si3n4": "nitreto_silicio",
+        "mgb2": "diboreto_magnesio",
+        "sb2te3": "telureto_antimonio",
+        "cosb3": "skutterudita",
+        "nitisn": "half_heusler",
+        "agsbte2": "tags",
+        "gete": "ge_te",
+        "pzt": "pzt",
+        "quartz": "quartzo",
+        "sio2": "quartzo",
+        "linbo3": "niobato_litio",
+        "litao3": "tantalato_litio",
+        "ybco": "supercondutor_ybco",
+        "yba2cu3o7": "supercondutor_ybco",
+        "bscco": "supercondutor_bscco",
+        "bi2sr2cacu2o8": "supercondutor_bscco",
+        "nbti": "supercondutor_nbti",
+        "nb3sn": "supercondutor_nb3sn",
+        "zro2": "zirconia",
+        "hfo2": "hafnia",
+        "ceria": "ceria",
+        "ceo2": "ceria",
+        "ndfeb": "ndfeb",
+        "nd2fe14b": "ndfeb",
+        "alnico": "alnico",
+        "mu-metal": "mu_metal",
+        "mu metal": "mu_metal",
+        "kevlar": "kevlar",
+        "nylon": "nylon",
+        "pc": "policarbonato",
+        "polycarbonate": "policarbonato",
+        "pe": "polietileno",
+        "polyethylene": "polietileno",
+        "pp": "polipropileno",
+        "polypropylene": "polipropileno",
+        "silica aerogel": "aerogel_silica",
+        "cnt": "nanotubo_carbono",
+        "carbon nanotube": "nanotubo_carbono",
+        "c60": "fulereno_c60",
+        "fullerene": "fulereno_c60",
+        "licoo2": "li_coo2",
+        "lifepo4": "lifepo4",
+        "nmc811": "nmc811",
+        "ti3c2": "mxene_ti3c2",
+        "mxene": "mxene_ti3c2",
+        "sns2": "dissulfeto_estanho",
+        "sns": "sulfeto_estanho",
+        "bisbse": "seleneto_bismuto_antimonio",
+        "ito": "oxido_indio_estanho",
+        "in2o3:sn": "oxido_indio_estanho",
+        "snf2": "fluoreto_estanho",
+        "cuo": "oxido_cobre",
+        "cu2o": "oxido_cobre_i",
+        "lan": "nitreto_lantanio",
+        "nitreto de lantanio": "nitreto_lantanio",
+        "cen": "nitreto_cerio",
+        "ndn": "nitreto_neodimio",
+        "gdn": "nitreto_gadolinio",
+        "lab6": "boreto_lantanio",
+        "ceb6": "boreto_cerio",
+        "smb6": "boreto_samario",
+        "y2sio5": "silicato_itrio",
+        "yso": "silicato_itrio",
+        "yvo4": "vanadato_itrio",
+        "lapo4": "fosfato_lantanio",
+        "laf3": "fluoreto_lantanio",
+        "liyf4": "fluoreto_litio_itrio",
+        "ylf": "fluoreto_litio_itrio",
+        "gd2o2s": "oxissulfeto_gadolinio",
+        "gos": "oxissulfeto_gadolinio",
+        "yag": "yag",
+        "luag": "lag",
+        "lu3al5o12": "lag",
+        "yfeo3": "ortoferrita_itrio",
+        "lafeo3": "ortoferrita_lantanio",
+        "ndfeo3": "ortoferrita_neodimio",
+        "pcmo": "manganita_praseodimio_calcio",
+        "pr0.7ca0.3mno3": "manganita_praseodimio_calcio",
+        "smcoo3": "cobaltita_samario",
+        "ndnio3": "niquelato_neodimio",
+        "ndgao3": "galato_neodimio",
+        "dysco3": "escandato_disprosio",
+        "gd2zr2o7": "zirconato_gadolinio",
+        "la2zr2o7": "zirconato_lantanio",
+        "nd2ti2o7": "titanato_neodimio",
+        "gd2(moo4)3": "molibdato_gadolinio",
+        "y2(wo4)3": "tungstato_itrio",
+        "luvo4": "vanadato_lutecio",
+        "cepo4": "fosfato_cerio",
+        "eus": "sulfeto_europio",
+        "euse": "seleneto_europio",
+    }
+)
+
 
 def local_material_key(query: str) -> str:
     key = query.strip().lower()
@@ -779,6 +1300,190 @@ def weighted_average(materials: Iterable[tuple[Material, float]], attr: str) -> 
     return sum(values)
 
 
+def is_insulating_component(material: Material) -> bool:
+    text = f"{material.name} {material.category} {material.crystal_structure}".lower()
+    if material.electrical_conductivity_s_m <= 1.0e-6:
+        return True
+    if material.band_gap_ev >= 3.0:
+        return True
+    return any(
+        token in text
+        for token in (
+            "oxido",
+            "oxide",
+            "ceramico",
+            "fosfato",
+            "fluoreto",
+            "silicato",
+            "sal ",
+            "isolante",
+            "dielet",
+        )
+    )
+
+
+def is_conductive_component(material: Material) -> bool:
+    text = f"{material.name} {material.category}".lower()
+    if "supercondutor" in text or "metalica" in text or "condutor" in text:
+        return material.electrical_conductivity_s_m >= 1.0e5
+    if "metal" in text and "semicondutor" not in text and "metaloide" not in text:
+        return material.electrical_conductivity_s_m >= 1.0e5
+    return material.electrical_conductivity_s_m >= 1.0e6 and material.band_gap_ev < 0.5
+
+
+def effective_electrical_conductivity(selected: list[tuple[Material, float]]) -> float:
+    conductor_fraction = sum(
+        fraction for material, fraction in selected if is_conductive_component(material)
+    )
+    insulating_fraction = sum(
+        fraction for material, fraction in selected if is_insulating_component(material)
+    )
+    arithmetic = weighted_average(selected, "electrical_conductivity_s_m")
+
+    if conductor_fraction >= 0.5 and insulating_fraction < 0.5:
+        return arithmetic
+
+    log_sigma = 0.0
+    for material, fraction in selected:
+        sigma = max(material.electrical_conductivity_s_m, 1.0e-18)
+        log_sigma += fraction * math.log10(sigma)
+    geometric = 10 ** log_sigma
+
+    if conductor_fraction >= 0.35 and insulating_fraction < 0.35:
+        return max(geometric, arithmetic * 0.05)
+    return geometric
+
+
+def literature_electrical_class(material: Material) -> tuple[str, str]:
+    text = f"{material.name} {material.formula} {material.category} {material.crystal_structure}".lower()
+
+    if any(token in text for token in ("supercondutor", "condutor transparente", "perovskita condutora")):
+        return "condutor", "classe por literatura/catalogo: material descrito como condutor"
+    if "metalica" in text or (
+        "metal" in text and "metaloide" not in text and "semicondutor" not in text
+    ):
+        return "condutor", "classe por literatura/catalogo: metal ou liga metalica"
+    if "semicondutor" in text or "termoeletrico" in text or "fotovoltaico" in text:
+        return "semicondutor", "classe por literatura/catalogo: semicondutor/termoeletrico"
+    if "isolante topologico" in text:
+        return "semicondutor", "classe por literatura/catalogo: isolante topologico com comportamento semicondutor de bulk"
+    if any(
+        token in text
+        for token in (
+            "oxido",
+            "oxide",
+            "ceramico",
+            "fosfato",
+            "fluoreto",
+            "silicato",
+            "granada",
+            "sal ",
+            "dielet",
+            "isolante",
+        )
+    ):
+        if material.band_gap_ev >= 2.5 or material.electrical_conductivity_s_m <= 1.0e-6:
+            return "isolante", "classe por literatura/catalogo: oxido, ceramico, sal ou dieletrico"
+    return (
+        classify_electrical_behavior(material.band_gap_ev, material.electrical_conductivity_s_m),
+        "classe por propriedades catalogadas quando nao ha regra bibliografica especifica",
+    )
+
+
+def literature_composite_class(
+    selected: list[tuple[Material, float]],
+    band_gap_ev: float,
+    conductivity: float,
+) -> tuple[str, str, str]:
+    formulas = {material.formula for material, _fraction in selected}
+    if {"Nd2O3", "Al", "O"}.issubset(formulas):
+        return (
+            "isolante",
+            "alta",
+            "Classe baseada em literatura de oxidos/perovskitas de terra rara: a fase oxidica Nd-Al-O e tratada como isolante/dieletrica, mesmo contendo Al na mistura.",
+        )
+
+    class_fractions = {"isolante": 0.0, "semicondutor": 0.0, "condutor": 0.0}
+    basis_parts = []
+    for material, fraction in selected:
+        material_class, material_basis = literature_electrical_class(material)
+        class_fractions[material_class] += fraction
+        basis_parts.append(
+            f"{material.formula}: {material_class} ({round(fraction * 100, 1)}%)"
+        )
+
+    if class_fractions["isolante"] >= 0.5 and class_fractions["condutor"] < 0.35:
+        return (
+            "isolante",
+            "alta",
+            "Classe baseada em artigos/catalogo: matriz isolante predominante. "
+            + "; ".join(basis_parts),
+        )
+    if class_fractions["condutor"] >= 0.5 and class_fractions["isolante"] < 0.4:
+        return (
+            "condutor",
+            "alta",
+            "Classe baseada em artigos/catalogo: fase condutora predominante ou percolante. "
+            + "; ".join(basis_parts),
+        )
+    if class_fractions["semicondutor"] >= 0.35:
+        return (
+            "semicondutor",
+            "media",
+            "Classe baseada em artigos/catalogo: fase semicondutora relevante na composicao. "
+            + "; ".join(basis_parts),
+        )
+
+    fallback = classify_electrical_behavior(band_gap_ev, conductivity)
+    return (
+        fallback,
+        "media",
+        "Classe definida por propriedades catalogadas e regra de percolacao quando a literatura dos componentes e mista. "
+        + "; ".join(basis_parts),
+    )
+
+
+def literature_band_gap_basis(
+    selected: list[tuple[Material, float]],
+    band_gap_ev: float,
+) -> tuple[str, str]:
+    formulas = {material.formula for material, _fraction in selected}
+    if {"Nd2O3", "Al", "O"}.issubset(formulas):
+        return (
+            "media",
+            "Band gap estimado por literatura/catalogo de fase oxidica Nd-Al-O. Para valor final de fase sintetizada, confirme por artigo experimental, UV-Vis/Tauc ou DFT.",
+        )
+
+    if len(selected) == 1:
+        material, _fraction = selected[0]
+        material_class, _basis = literature_electrical_class(material)
+        if material_class == "condutor" and band_gap_ev <= 0.1:
+            return (
+                "alta",
+                f"Band gap ~0 eV por literatura/catalogo: {material.formula} e tratado como condutor/metalico.",
+            )
+        if material.band_gap_ev > 0:
+            return (
+                "alta",
+                f"Band gap de {material.formula} vem do catalogo local baseado em valores de literatura para o material.",
+            )
+        return (
+            "media",
+            f"Band gap de {material.formula} tratado como 0 eV por falta de gap catalogado; confira literatura especifica se houver fase semicondutora.",
+        )
+
+    parts = [
+        f"{material.formula}: {material.band_gap_ev:g} eV ({round(fraction * 100, 1)}%)"
+        for material, fraction in selected
+    ]
+    return (
+        "media",
+        "Band gap efetivo estimado por media ponderada de valores catalogados/literatura dos componentes. "
+        "Para mistura com nova fase cristalina, use artigos experimentais, UV-Vis/Tauc ou DFT para validar. "
+        + "; ".join(parts),
+    )
+
+
 def estimate_seebeck_uv_k(material: Material) -> float:
     formula = material.formula.lower()
     category = material.category.lower()
@@ -824,6 +1529,10 @@ def thermoelectric_values(material: Material) -> dict[str, float]:
 
 
 def dominant_structure(selected: list[tuple[Material, float]]) -> str:
+    formulas = {material.formula for material, _fraction in selected}
+    if {"Nd2O3", "Al", "O"}.issubset(formulas):
+        return "perovskita ortorrombica"
+
     totals: dict[str, float] = {}
     for material, fraction in selected:
         totals[material.crystal_structure] = totals.get(material.crystal_structure, 0) + fraction
@@ -946,27 +1655,35 @@ def simulate_composite(
     density = weighted_average(selected, "density_g_cm3")
     modulus = weighted_average(selected, "elastic_modulus_gpa")
     thermal = weighted_average(selected, "thermal_conductivity_w_mk")
-    electrical = weighted_average(selected, "electrical_conductivity_s_m")
+    electrical = effective_electrical_conductivity(selected)
     band_gap = weighted_average(selected, "band_gap_ev")
     melting_point = weighted_average(selected, "melting_point_c")
     atomic_radius = weighted_average(selected, "atomic_radius_pm")
     electronegativity = weighted_average(selected, "electronegativity")
     hardness = weighted_average(selected, "hardness_vickers_hv")
+    molar_mass = weighted_average(selected, "atomic_mass_u")
     seebeck = sum(estimate_seebeck_uv_k(material) * fraction for material, fraction in selected)
     seebeck_v_k = seebeck * 1.0e-6
     power_factor = seebeck_v_k * seebeck_v_k * electrical
     zt_300k = power_factor * 300 / thermal if thermal > 0 else 0
+    electrical_class, class_confidence, class_basis = literature_composite_class(
+        selected, band_gap, electrical
+    )
+    band_gap_confidence, band_gap_basis = literature_band_gap_basis(selected, band_gap)
 
     return {
         "formula_aproximada": " + ".join(
             f"{fraction:.2f}*{material.formula}" for material, fraction in selected
         ),
+        "massa_molar_g_mol": round(molar_mass, 3),
         "densidade_g_cm3": round(density, 3),
         "modulo_elastico_gpa": round(modulus, 3),
         "condutividade_termica_w_mk": round(thermal, 3),
         "condutividade_eletrica_s_m": round(electrical, 6),
         "resistividade_ohm_m": round(1 / electrical, 12) if electrical > 0 else "n/a",
         "band_gap_ev": round(band_gap, 3),
+        "confianca_band_gap": band_gap_confidence,
+        "base_bibliografica_band_gap": band_gap_basis,
         "ponto_fusao_c": round(melting_point, 1),
         "raio_atomico_pm": round(atomic_radius, 1),
         "eletronegatividade_media": round(electronegativity, 3),
@@ -975,12 +1692,15 @@ def simulate_composite(
         "fator_potencia_w_mk2": round(power_factor, 8),
         "zt_300k": round(zt_300k, 4),
         "estrutura_predominante": dominant_structure(selected),
-        "classe_eletrica": classify_electrical_behavior(band_gap, electrical),
+        "classe_eletrica": electrical_class,
+        "confianca_classe": class_confidence,
+        "base_bibliografica": class_basis,
         "indicacao": suggest_application(density, modulus, thermal, electrical, band_gap),
         "componentes": [
             {
                 **material.to_dict(),
                 "fraction": round(fraction, 4),
+                "classe_literatura": literature_electrical_class(material)[0],
                 **{
                     key: round(value, 8)
                     for key, value in thermoelectric_values(material).items()
@@ -998,9 +1718,9 @@ def simulate_composite(
 
 
 def classify_electrical_behavior(band_gap_ev: float, conductivity: float) -> str:
-    if conductivity >= 1.0e6 or band_gap_ev < 0.1:
+    if conductivity >= 1.0e6:
         return "condutor"
-    if conductivity >= 1.0e-6 or band_gap_ev < 3.0:
+    if conductivity >= 1.0e-5 or band_gap_ev < 3.0:
         return "semicondutor"
     return "isolante"
 

@@ -22,12 +22,15 @@ const xrdImage = document.querySelector("#xrdImage");
 
 const metricLabels = {
   formula_aproximada: "Formula aproximada",
+  massa_molar_g_mol: "Massa molar aproximada (g/mol)",
   densidade_g_cm3: "Densidade (g/cm3)",
   modulo_elastico_gpa: "Modulo elastico (GPa)",
   condutividade_termica_w_mk: "Condutividade termica (W/mK)",
   condutividade_eletrica_s_m: "Condutividade eletrica (S/m)",
   resistividade_ohm_m: "Resistividade (ohm m)",
-  band_gap_ev: "Band gap (eV)",
+  band_gap_ev: "Band gap bibliografico/estimado (eV)",
+  confianca_band_gap: "Confianca do band gap",
+  base_bibliografica_band_gap: "Base bibliografica do band gap",
   ponto_fusao_c: "Ponto de fusao (C)",
   raio_atomico_pm: "Raio atomico medio (pm)",
   eletronegatividade_media: "Eletronegatividade media",
@@ -37,10 +40,13 @@ const metricLabels = {
   zt_300k: "ZT estimado em 300 K",
   estrutura_predominante: "Estrutura predominante",
   classe_eletrica: "Classe eletrica",
+  confianca_classe: "Confianca da classe",
+  base_bibliografica: "Base bibliografica da classe",
   indicacao: "Indicacao",
 };
 
 const chartMetrics = [
+  ["atomic_mass_u", "Massa molar"],
   ["density_g_cm3", "Densidade"],
   ["elastic_modulus_gpa", "Modulo"],
   ["thermal_conductivity_w_mk", "Cond. termica"],
@@ -201,7 +207,7 @@ function renderMetrics(simulation) {
       continue;
     }
     const card = document.createElement("article");
-    card.className = key === "indicacao" ? "metric metric-wide" : "metric";
+    card.className = ["indicacao", "base_bibliografica", "base_bibliografica_band_gap"].includes(key) ? "metric metric-wide" : "metric";
     card.innerHTML = `<span>${metricLabels[key] || key}</span><strong>${formatValue(value)}</strong>`;
     metricsGrid.append(card);
   }

@@ -1240,19 +1240,30 @@ class MaterialsProjectClient:
             "nsites",
             "density",
             "band_gap",
-            "is_gap_direct",
             "is_metal",
-            "efermi",
             "energy_above_hull",
             "formation_energy_per_atom",
             "is_stable",
-            "crystal_system",
             "symmetry",
             "structure",
             "volume",
-            "database_IDs",
-            "theoretical",
-            "deprecated",
+        ]
+    )
+    FALLBACK_SUMMARY_FIELDS = ",".join(
+        [
+            "material_id",
+            "formula_pretty",
+            "elements",
+            "nelements",
+            "nsites",
+            "density",
+            "band_gap",
+            "is_metal",
+            "energy_above_hull",
+            "formation_energy_per_atom",
+            "is_stable",
+            "symmetry",
+            "volume",
         ]
     )
 
@@ -1281,6 +1292,21 @@ class MaterialsProjectClient:
         response = requests.get(self.BASE_URL, headers=headers, params=params, timeout=25)
         response.raise_for_status()
         return response.json().get("data", [])
+
+    @staticmethod
+    def readable_error(exc: Exception) -> str:
+        response = getattr(exc, "response", None)
+        status_code = getattr(response, "status_code", None)
+        if status_code == 400:
+            return (
+                "Materials Project recusou essa consulta (400). Tente uma formula mais especifica "
+                "ou menos elementos; o sistema tambem tentou uma busca reserva com campos reduzidos."
+            )
+        if status_code in {401, 403}:
+            return "A chave MP_API_KEY foi recusada. Confira se a chave esta correta no Render."
+        if status_code:
+            return f"Materials Project retornou erro HTTP {status_code}."
+        return f"Falha ao consultar Materials Project: {exc.__class__.__name__}"
 
     def search_by_formula(self, formula: str) -> Optional[Material]:
         if not self.api_key or requests is None:
@@ -1359,13 +1385,33 @@ class MaterialsProjectClient:
         try:
             data = self.summary_search(params)
         except Exception as exc:
+            fallback_params = {
+                **params,
+                "fields": self.FALLBACK_SUMMARY_FIELDS,
+            }
+            try:
+                data = self.summary_search(fallback_params)
+            except Exception:
+                return {
+                    "available": False,
+                    "query": human_query,
+                    "chemsys": chemsys,
+                    "links": links,
+                    "results": [],
+                    "message": self.readable_error(exc),
+                }
             return {
-                "available": False,
+                "available": True,
                 "query": human_query,
                 "chemsys": chemsys,
                 "links": links,
-                "results": [],
-                "message": f"Falha ao consultar Materials Project: {exc}",
+                "results": [format_materials_project_doc(item) for item in data],
+                "message": (
+                    f"{len(data)} resultado(s) do Materials Project para {chemsys}. "
+                    "A busca reserva trouxe propriedades, mas sem coordenadas atomicas completas para desenhar a estrutura."
+                    if data
+                    else f"Nenhum resultado encontrado no Materials Project para {chemsys}."
+                ),
             }
 
         return {

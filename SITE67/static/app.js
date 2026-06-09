@@ -240,6 +240,14 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function compactText(value, maxLength = 220) {
+  const text = String(value || "");
+  if (text.length <= maxLength) {
+    return text;
+  }
+  return `${text.slice(0, maxLength - 3)}...`;
+}
+
 function formatValue(value) {
   if (typeof value !== "number") {
     return value;
@@ -434,10 +442,11 @@ function drawMaterialsProjectStructure(item, result = {}) {
   if (!mpStructureCanvas) {
     return;
   }
+  const sites = normalizeMpSites(item);
+  mpStructureCanvas.height = sites.length ? 320 : 135;
   const ctx = clearCanvas(mpStructureCanvas);
   const width = mpStructureCanvas.width;
   const height = mpStructureCanvas.height;
-  const sites = normalizeMpSites(item);
 
   ctx.fillStyle = "#f8fbf8";
   ctx.fillRect(0, 0, width, height);
@@ -450,8 +459,8 @@ function drawMaterialsProjectStructure(item, result = {}) {
     ctx.fillText("Estrutura cristalina do Materials Project", 22, 34);
     ctx.fillStyle = "#66716d";
     ctx.font = "14px Arial";
-    ctx.fillText(result?.message || "Configure MP_API_KEY para puxar a estrutura e a rede cristalina reais.", 22, 64);
-    ctx.fillText("Sem chave da API, o site mostra apenas estimativas locais e links externos.", 22, 88);
+    ctx.fillText(compactText(result?.message || "Configure MP_API_KEY para puxar a estrutura e a rede cristalina reais.", 120), 22, 64);
+    ctx.fillText("Quando a API retornar coordenadas, este bloco vira a imagem da celula cristalina.", 22, 90);
     return;
   }
 
@@ -525,7 +534,7 @@ function renderMaterialsProject(result) {
     drawMaterialsProjectStructure(null, result);
     mpResults.className = "mp-results empty";
     mpResults.innerHTML = `
-      <strong>${escapeHtml(result?.message || "Sem resultados do Materials Project.")}</strong>
+      <strong>${escapeHtml(compactText(result?.message || "Sem resultados do Materials Project."))}</strong>
       ${result?.chemsys ? `<span>Sistema: ${escapeHtml(result.chemsys)}</span>` : ""}
       ${linkHtml}
     `;
@@ -585,7 +594,7 @@ function renderMaterialsProject(result) {
   mpResults.className = "mp-results";
   mpResults.innerHTML = `
     <div class="mp-summary">
-      <strong>${escapeHtml(result.message || "Dados do Materials Project.")}</strong>
+      <strong>${escapeHtml(compactText(result.message || "Dados do Materials Project.", 260))}</strong>
       <span>Sistema: ${escapeHtml(result.chemsys || result.query || "")}</span>
       ${linkHtml}
     </div>

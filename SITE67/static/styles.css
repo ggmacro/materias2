@@ -271,6 +271,11 @@ input {
   margin-bottom: 24px;
 }
 
+.xrd-grid {
+  grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.75fr);
+  gap: 16px;
+}
+
 .visual-panel,
 .chart-panel {
   padding: 16px;
@@ -317,6 +322,15 @@ canvas {
 
 .mp-panel {
   margin-bottom: 24px;
+}
+
+.mp-structure-layout {
+  margin-bottom: 12px;
+}
+
+.mp-structure-layout canvas {
+  border-color: rgba(17, 97, 91, 0.32);
+  background: #f8fbf8;
 }
 
 .mp-results {
@@ -392,6 +406,25 @@ canvas {
   color: var(--muted);
   font-size: 0.92rem;
   line-height: 1.45;
+}
+
+.mp-structure-note {
+  padding: 10px;
+  background: #f8fbf8;
+  border-left: 3px solid var(--accent);
+}
+
+.xrd-main-panel {
+  border: 2px solid rgba(17, 97, 91, 0.38);
+  box-shadow: 0 14px 30px rgba(29, 35, 33, 0.1);
+}
+
+.xrd-main-panel canvas {
+  border-color: rgba(17, 97, 91, 0.42);
+}
+
+.xrd-side-panel {
+  align-self: stretch;
 }
 
 .mp-card details {

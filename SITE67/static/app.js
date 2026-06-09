@@ -36,6 +36,7 @@ const mpQuery = document.querySelector("#mpQuery");
 const mpLimit = document.querySelector("#mpLimit");
 const mpButton = document.querySelector("#mpButton");
 const mpResults = document.querySelector("#mpResults");
+const mpStructureCanvas = document.querySelector("#mpStructureCanvas");
 
 const metricLabels = {
   formula_aproximada: "Formula aproximada",
@@ -61,6 +62,7 @@ const metricLabels = {
   estrutura_confirmada: "Estrutura confirmada?",
   classe_eletrica: "Classe eletrica",
   confianca_classe: "Confianca da classe",
+  criterio_classe_eletrica: "Criterio da classe eletrica",
   base_bibliografica: "Base bibliografica da classe",
   indicacao: "Indicacao",
 };
@@ -260,6 +262,7 @@ function renderMetrics(simulation) {
       "base_bibliografica",
       "base_bibliografica_band_gap",
       "base_cristalografica",
+      "criterio_classe_eletrica",
     ].includes(key) ? "metric metric-wide" : "metric";
     card.innerHTML = `<span>${metricLabels[key] || key}</span><strong>${formatValue(value)}</strong>`;
     metricsGrid.append(card);
@@ -332,6 +335,180 @@ function mpValue(value, suffix = "") {
   return `${formatValue(value)}${suffix}`;
 }
 
+function finiteTriplet(values) {
+  if (!Array.isArray(values) || values.length < 3) {
+    return [];
+  }
+  const triplet = values.slice(0, 3).map((value) => Number(value));
+  return triplet.every(Number.isFinite) ? triplet : [];
+}
+
+function normalizeMpSymbol(symbol) {
+  const text = String(symbol || "X");
+  const match = text.match(/[A-Z][a-z]?/);
+  return match ? match[0] : text.slice(0, 2);
+}
+
+function normalizeMpSites(item) {
+  const rawSites = Array.isArray(item?.structure?.sites) ? item.structure.sites : [];
+  const sites = rawSites.slice(0, 120).map((site) => ({
+    symbol: normalizeMpSymbol(site.symbol),
+    abc: finiteTriplet(site.abc),
+    xyz: finiteTriplet(site.xyz),
+  }));
+
+  if (sites.every((site) => site.abc.length === 3)) {
+    return sites.map((site) => ({ ...site, point: site.abc }));
+  }
+
+  const xyzSites = sites.filter((site) => site.xyz.length === 3);
+  if (!xyzSites.length) {
+    return [];
+  }
+  const mins = [0, 1, 2].map((axis) => Math.min(...xyzSites.map((site) => site.xyz[axis])));
+  const maxs = [0, 1, 2].map((axis) => Math.max(...xyzSites.map((site) => site.xyz[axis])));
+  return xyzSites.map((site) => ({
+    ...site,
+    point: site.xyz.map((value, axis) => {
+      const span = Math.max(maxs[axis] - mins[axis], 1e-9);
+      return (value - mins[axis]) / span;
+    }),
+  }));
+}
+
+function mpProjector(canvas) {
+  const originX = 86;
+  const originY = 104;
+  const cellWidth = canvas.width - 280;
+  const cellHeight = canvas.height - 180;
+  const depth = Math.min(135, cellWidth * 0.18);
+  return ([a, b, c]) => {
+    const aa = Math.max(-0.08, Math.min(1.08, a));
+    const bb = Math.max(-0.08, Math.min(1.08, b));
+    const cc = Math.max(-0.08, Math.min(1.08, c));
+    return {
+      x: originX + aa * cellWidth + cc * depth,
+      y: originY + bb * cellHeight - cc * depth * 0.55,
+      z: cc,
+    };
+  };
+}
+
+function drawMaterialsProjectCell(ctx, project) {
+  const corners = [
+    [0, 0, 0],
+    [1, 0, 0],
+    [1, 1, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+    [1, 0, 1],
+    [1, 1, 1],
+    [0, 1, 1],
+  ].map(project);
+  const edges = [
+    [0, 1],
+    [1, 2],
+    [2, 3],
+    [3, 0],
+    [4, 5],
+    [5, 6],
+    [6, 7],
+    [7, 4],
+    [0, 4],
+    [1, 5],
+    [2, 6],
+    [3, 7],
+  ];
+
+  ctx.strokeStyle = "rgba(17, 97, 91, 0.38)";
+  ctx.lineWidth = 2;
+  edges.forEach(([from, to]) => {
+    ctx.beginPath();
+    ctx.moveTo(corners[from].x, corners[from].y);
+    ctx.lineTo(corners[to].x, corners[to].y);
+    ctx.stroke();
+  });
+}
+
+function drawMaterialsProjectStructure(item, result = {}) {
+  if (!mpStructureCanvas) {
+    return;
+  }
+  const ctx = clearCanvas(mpStructureCanvas);
+  const width = mpStructureCanvas.width;
+  const height = mpStructureCanvas.height;
+  const sites = normalizeMpSites(item);
+
+  ctx.fillStyle = "#f8fbf8";
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = "#1d2321";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  ctx.font = "700 18px Arial";
+
+  if (!item || !sites.length) {
+    ctx.fillText("Estrutura cristalina do Materials Project", 22, 34);
+    ctx.fillStyle = "#66716d";
+    ctx.font = "14px Arial";
+    ctx.fillText(result?.message || "Configure MP_API_KEY para puxar a estrutura e a rede cristalina reais.", 22, 64);
+    ctx.fillText("Sem chave da API, o site mostra apenas estimativas locais e links externos.", 22, 88);
+    return;
+  }
+
+  const materialLabel = `${item.formula || "Formula"} ${item.material_id ? `(${item.material_id})` : ""}`;
+  ctx.fillText(`Estrutura MP: ${materialLabel}`, 22, 34);
+  ctx.fillStyle = "#66716d";
+  ctx.font = "13px Arial";
+  ctx.fillText(
+    `Rede: ${item.crystal_system || "n/a"} | grupo: ${item.spacegroup_symbol || "n/a"} ${item.spacegroup_number || ""} | sites: ${item.structure?.site_count || sites.length}`,
+    22,
+    58
+  );
+
+  const project = mpProjector(mpStructureCanvas);
+  drawMaterialsProjectCell(ctx, project);
+  const atoms = sites
+    .map((site) => ({ ...site, screen: project(site.point) }))
+    .sort((a, b) => a.screen.z - b.screen.z);
+
+  let bonds = 0;
+  for (let i = 0; i < atoms.length; i += 1) {
+    for (let j = i + 1; j < atoms.length; j += 1) {
+      const a = atoms[i].screen;
+      const b = atoms[j].screen;
+      const distance = Math.hypot(a.x - b.x, a.y - b.y);
+      if (distance < 72 && Math.abs(a.z - b.z) < 0.42 && bonds < 180) {
+        drawBond(ctx, a.x, a.y, b.x, b.y);
+        bonds += 1;
+      }
+    }
+  }
+
+  atoms.forEach((site) => {
+    const radius = 10 + site.screen.z * 7;
+    drawAtom(ctx, site.screen.x, site.screen.y, radius, site.symbol, atomColor(site.symbol));
+  });
+
+  const lattice = item.lattice || {};
+  ctx.fillStyle = "#1d2321";
+  ctx.font = "700 13px Arial";
+  ctx.fillText("Parametros da rede", width - 220, 92);
+  ctx.fillStyle = "#66716d";
+  ctx.font = "12px Arial";
+  [
+    `a ${mpValue(lattice.a, " A")}`,
+    `b ${mpValue(lattice.b, " A")}`,
+    `c ${mpValue(lattice.c, " A")}`,
+    `alpha ${mpValue(lattice.alpha, " deg")}`,
+    `beta ${mpValue(lattice.beta, " deg")}`,
+    `gamma ${mpValue(lattice.gamma, " deg")}`,
+  ].forEach((line, index) => ctx.fillText(line, width - 220, 116 + index * 18));
+
+  ctx.fillStyle = "#66716d";
+  ctx.font = "12px Arial";
+  ctx.fillText("Desenho gerado das coordenadas atomicas retornadas pela API do Materials Project.", 22, height - 18);
+}
+
 function renderMaterialsProject(result) {
   if (!mpResults) {
     return;
@@ -345,6 +522,7 @@ function renderMaterialsProject(result) {
   `;
 
   if (!result?.results?.length) {
+    drawMaterialsProjectStructure(null, result);
     mpResults.className = "mp-results empty";
     mpResults.innerHTML = `
       <strong>${escapeHtml(result?.message || "Sem resultados do Materials Project.")}</strong>
@@ -353,6 +531,8 @@ function renderMaterialsProject(result) {
     `;
     return;
   }
+
+  drawMaterialsProjectStructure(result.results[0], result);
 
   const cards = result.results
     .map((item) => {
@@ -378,6 +558,10 @@ function renderMaterialsProject(result) {
             <div><dt>Sites</dt><dd>${mpValue(item.nsites)}</dd></div>
             <div><dt>Volume</dt><dd>${mpValue(item.volume_a3, " A3")}</dd></div>
           </dl>
+          <div class="mp-lattice mp-structure-note">
+            Estrutura desenhada: ${mpValue(item.structure?.sites?.length)} sites recebidos da API
+            ${item.structure?.truncated ? "(amostra limitada para desempenho)" : ""}
+          </div>
           <div class="mp-lattice">
             Rede: a=${mpValue(item.lattice?.a, " A")},
             b=${mpValue(item.lattice?.b, " A")},
@@ -867,27 +1051,32 @@ function drawXrdChart(xrd) {
   const profile = (xrd?.perfil || []).filter(
     (point) => point.two_theta_deg >= xMin && point.two_theta_deg <= xMax
   );
-  const left = 54;
-  const right = 24;
-  const top = 42;
-  const bottom = 44;
+  const left = 66;
+  const right = 34;
+  const top = 60;
+  const bottom = 58;
   const width = xrdChart.width - left - right;
   const height = xrdChart.height - top - bottom;
   const xForTheta = (theta) => left + ((theta - xMin) / (xMax - xMin)) * width;
   const yForIntensity = (intensity) => top + height - (Math.max(0, intensity) / 100) * height;
 
+  ctx.fillStyle = "#f8fbf8";
+  ctx.fillRect(left, top, width, height);
   ctx.fillStyle = "#1d2321";
-  ctx.font = "700 15px Arial";
+  ctx.font = "700 19px Arial";
   ctx.fillText(
     `DRX: lambda ${formatValue(xrd?.comprimento_onda_a || 1.5406)} A | ${xMin} a ${xMax} 2theta`,
     left,
-    20
+    28
   );
+  ctx.fillStyle = "#66716d";
+  ctx.font = "12px Arial";
+  ctx.fillText(`Passo ${formatValue(xrd?.x_step ?? 0.05)} | picos ${peaks.length}`, left, 48);
 
   ctx.strokeStyle = "#d9ded8";
   ctx.lineWidth = 1;
-  for (let i = 0; i <= 5; i += 1) {
-    const y = top + (height / 5) * i;
+  for (let i = 0; i <= 8; i += 1) {
+    const y = top + (height / 8) * i;
     ctx.beginPath();
     ctx.moveTo(left, y);
     ctx.lineTo(left + width, y);
@@ -895,7 +1084,7 @@ function drawXrdChart(xrd) {
   }
 
   ctx.strokeStyle = "#1d2321";
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.moveTo(left, top);
   ctx.lineTo(left, top + height);
@@ -903,8 +1092,8 @@ function drawXrdChart(xrd) {
   ctx.stroke();
 
   if (profile.length) {
-    ctx.strokeStyle = "rgba(17, 97, 91, 0.78)";
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = "rgba(17, 97, 91, 0.9)";
+    ctx.lineWidth = 3;
     ctx.beginPath();
     profile.forEach((point, index) => {
       const x = xForTheta(point.two_theta_deg);
@@ -922,7 +1111,7 @@ function drawXrdChart(xrd) {
     const x = xForTheta(peak.two_theta_deg);
     const barHeight = (peak.relative_intensity / 100) * height;
     ctx.strokeStyle = peak.color || "#11615b";
-    ctx.lineWidth = 3;
+    ctx.lineWidth = peak.relative_intensity > 55 ? 5 : 3.5;
     ctx.beginPath();
     ctx.moveTo(x, top + height);
     ctx.lineTo(x, top + height - barHeight);
@@ -933,17 +1122,17 @@ function drawXrdChart(xrd) {
       ctx.translate(x + 4, top + height - barHeight - 4);
       ctx.rotate(-Math.PI / 4);
       ctx.fillStyle = "#1d2321";
-      ctx.font = "11px Arial";
+      ctx.font = peak.relative_intensity > 55 ? "700 12px Arial" : "11px Arial";
       ctx.fillText(`${peak.symbol} ${peak.hkl}`, 0, 0);
       ctx.restore();
     }
   });
 
   ctx.fillStyle = "#66716d";
-  ctx.font = "12px Arial";
-  ctx.fillText("2 theta (graus)", left + width / 2 - 38, xrdChart.height - 12);
+  ctx.font = "13px Arial";
+  ctx.fillText("2 theta (graus)", left + width / 2 - 42, xrdChart.height - 14);
   ctx.save();
-  ctx.translate(16, top + height / 2 + 38);
+  ctx.translate(20, top + height / 2 + 46);
   ctx.rotate(-Math.PI / 2);
   ctx.fillText("Intensidade relativa", 0, 0);
   ctx.restore();

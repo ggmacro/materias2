@@ -1424,6 +1424,60 @@ def lattice_summary(structure: Any) -> dict[str, Any]:
     }
 
 
+def numeric_triplet(values: Any) -> list[float]:
+    if not isinstance(values, (list, tuple)) or len(values) < 3:
+        return []
+    triplet: list[float] = []
+    for value in values[:3]:
+        try:
+            triplet.append(round(float(value), 6))
+        except (TypeError, ValueError):
+            return []
+    return triplet
+
+
+def materials_project_site_symbol(site: dict[str, Any]) -> str:
+    species = site.get("species")
+    if isinstance(species, list) and species:
+        first = species[0]
+        if isinstance(first, dict):
+            symbol = first.get("element") or first.get("label") or first.get("species")
+            if symbol:
+                return str(symbol)
+
+    label = site.get("label") or site.get("species_string")
+    if isinstance(label, str) and label:
+        match = re.match(r"[A-Z][a-z]?", label)
+        return match.group(0) if match else label[:2]
+    return "X"
+
+
+def compact_structure_summary(structure: Any, site_limit: int = 160) -> dict[str, Any]:
+    if not isinstance(structure, dict):
+        return {"lattice": {}, "sites": []}
+
+    sites: list[dict[str, Any]] = []
+    for site in structure.get("sites") or []:
+        if not isinstance(site, dict):
+            continue
+        sites.append(
+            {
+                "symbol": materials_project_site_symbol(site),
+                "abc": numeric_triplet(site.get("abc")),
+                "xyz": numeric_triplet(site.get("xyz")),
+            }
+        )
+        if len(sites) >= site_limit:
+            break
+
+    return {
+        "lattice": lattice_summary(structure),
+        "sites": sites,
+        "site_count": len(structure.get("sites") or []),
+        "truncated": len(structure.get("sites") or []) > site_limit,
+    }
+
+
 def format_materials_project_doc(item: dict[str, Any]) -> dict[str, Any]:
     material_id = str(item.get("material_id") or "")
     symmetry = item.get("symmetry") or {}
@@ -1450,6 +1504,7 @@ def format_materials_project_doc(item: dict[str, Any]) -> dict[str, Any]:
         "point_group": symmetry.get("point_group"),
         "volume_a3": item.get("volume"),
         "lattice": lattice_summary(structure),
+        "structure": compact_structure_summary(structure),
         "database_ids": database_ids,
         "icsd_ids": database_ids.get("icsd", []) if isinstance(database_ids, dict) else [],
         "theoretical": item.get("theoretical"),
@@ -1668,6 +1723,21 @@ def literature_band_gap_basis(
         "Band gap efetivo estimado por media ponderada de valores catalogados/literatura dos componentes. "
         "Para mistura com nova fase cristalina, use artigos experimentais, UV-Vis/Tauc ou DFT para validar. "
         + "; ".join(parts),
+    )
+
+
+def electrical_classification_criterion(
+    electrical_class: str,
+    band_gap_ev: float,
+    conductivity: float,
+    confidence: str,
+) -> str:
+    return (
+        f"Classe final: {electrical_class} (confianca {confidence}). "
+        f"O sistema prioriza literatura/catalogo dos materiais escolhidos; quando nao ha fase confirmada, "
+        f"usa regra auxiliar com band gap {band_gap_ev:g} eV e condutividade {conductivity:g} S/m. "
+        "Regra auxiliar: condutor se sigma >= 1e6 S/m; semicondutor se sigma >= 1e-5 S/m "
+        "ou band gap < 3 eV; isolante quando o gap e alto e a condutividade e baixa."
     )
 
 
@@ -2062,6 +2132,9 @@ def simulate_composite(
         "estrutura_confirmada": structure_status,
         "classe_eletrica": electrical_class,
         "confianca_classe": class_confidence,
+        "criterio_classe_eletrica": electrical_classification_criterion(
+            electrical_class, band_gap, electrical, class_confidence
+        ),
         "base_bibliografica": class_basis,
         "indicacao": suggest_application(density, modulus, thermal, electrical, band_gap),
         "componentes": [
